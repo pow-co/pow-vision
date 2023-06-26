@@ -11,8 +11,7 @@
   "devDependencies": {
     "@nuxt/devtools": "latest",
     "@types/node": "^18",
-    "nuxt": "^3.5.1",
-    "typescript": "latest"
+    "nuxt": "^3.6.1"
   },
   "dependencies": {
     "@tresjs/cientos": "^2.1.4",

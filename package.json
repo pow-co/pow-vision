@@ -1,0 +1,23 @@
+{
+  "name": "nuxt-app",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "postinstall": "nuxt prepare"
+  },
+  "devDependencies": {
+    "@nuxt/devtools": "latest",
+    "@types/node": "^18",
+    "nuxt": "^3.5.1",
+    "typescript": "latest"
+  },
+  "dependencies": {
+    "@tresjs/cientos": "^2.1.4",
+    "@tresjs/nuxt": "^1.0.0",
+    "@tresjs/post-processing": "^0.3.0",
+    "buffer": "^6.0.3"
+  }
+}

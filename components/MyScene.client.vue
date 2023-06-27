@@ -105,7 +105,7 @@ onMounted(async () => {
   createDebugPane()
 
   onLoop(({ elapsed }) => {
-    rankings.value.forEach((item, index) => {
+    filteredRankings.value.forEach((item, index) => {
       const angle = elapsed * item.orbitSpeed // Adjust the speed of rotation as per your requirement
       const distanceFromCenter = 15 - (item.difficulty * 10) // Adjust the scaling factor as per your requirement
 
@@ -217,9 +217,9 @@ function getScaledRadius(difficulty) {
 function checkCollision(newPosition, currentSphere, index) {
   const collisionRadius = currentSphere.sphereRadius * 2; // Adjust the collision radius as per your requirement
 
-  for (let i = 0; i < rankings.value.length; i++) {
+  for (let i = 0; i < filteredRankings.value.length; i++) {
     if (i !== index) {
-      const otherSphere = rankings.value[i];
+      const otherSphere = filteredRankings.value[i];
 
       // Calculate AABBs for the current sphere and the other sphere
       const currentAABB = {

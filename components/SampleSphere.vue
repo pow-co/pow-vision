@@ -66,7 +66,6 @@
   // Methods
   //
   function onBoxClick(event) {
-    alert('Current RTAG: ' + this.tag)
 
     if ($gsap.isTweening(event.object.scale)) return
 

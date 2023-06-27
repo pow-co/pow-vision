@@ -40,6 +40,8 @@
     },
   })
   const showTagAlert= () => {
+    // Open a new window and go to www.pow.co/topic/{tag}
+      window.open(`https://www.pow.co/topics/${props.tag}`, '_blank')
       alert('Current RTAG: ' + props.tag)
     }
   //

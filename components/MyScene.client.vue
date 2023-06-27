@@ -1,53 +1,56 @@
 <template>
-  <TresCanvas v-bind="gl" window-size>
-    <TresPerspectiveCamera :position="[0, 1.7, 30]" :look-at="[0, 0, 0]" />
+  <div>
+    <TresCanvas v-if="filteredRankings.length" v-bind="gl" window-size>
+      <TresPerspectiveCamera :position="[0, 1.7, 30]" :look-at="[0, 0, 0]" />
 
-    <OrbitControls :enabled="config.orbitControlsEnabled" />
-    <Stars/>
-    <SampleSphere
-      v-for="item in rankings"
+      <OrbitControls :enabled="config.orbitControlsEnabled" />
+      <Stars/>
+      <SampleSphere
+      v-for="item in filteredRankings"
       :key="item.tag"
       :position="item.position"
       :sphereRadius="getScaledRadius(item.difficulty)"
       :tag="item.tag"
-    />
-  </TresCanvas>
+      />
+    </TresCanvas>
+  </div>
 </template>
 
 <script setup>
 import { OrbitControls, useTweakPane } from '@tresjs/cientos'
-import { reactive, ref, onMounted, nextTick } from 'vue'
+import { reactive, ref, onMounted, nextTick, computed } from 'vue'
 import { useRenderLoop } from '@tresjs/core'
 const { onLoop } = useRenderLoop()
+const timeFrame = reactive({timestamp: 'last7d'});
+const maxSpheres = ref(25); // Default maximum number of spheres
+const filteredRankings = computed(() => rankings.value.slice(0, maxSpheres.value));
 
-const { pane } = useTweakPane()
-
-const config = reactive({
-  orbitControlsEnabled: true,
-})
-
-const gl = reactive({
-  clearColor: '#595959',
-  powerPreference: 'high-performance',
-})
-
-const cleanString = (input) => {
-  console.log('input', input)
-  var output = "";
-  for (var i=0; i<input.length; i++) {
-    if (input.charCodeAt(i) <= 127) {
-      output += input.charAt(i);
-    }
+const currentTimestamp = computed(() => {
+  const now = Math.floor(Date.now() / 1000);
+  switch (timeFrame.timestamp) {
+    case 'last1hr':
+      return now - (1 * 60 * 60);
+    case 'last24hr':
+      return now - (24 * 60 * 60);
+    case 'last7d':
+      return now - (7 * 24 * 60 * 60);
+    case 'last1m':
+      return now - (30 * 24 * 60 * 60);
+    case 'alltime':
+    default:
+      return null;
   }
-  return output;
-}
-const rankings = ref([])
+});
 
-onMounted(async () => {
-  // Fetch data and update rankings
-  const { data } = await useFetch('https://pow.co/api/v1/boost/rankings/tags?start_date=1687726330')
+async function fetchData() {
+  const timestamp = currentTimestamp.value;
+  console.log('currentTimestamp', currentTimestamp)
+  const url = timestamp ? `https://pow.co/api/v1/boost/rankings/tags?start_date=${currentTimestamp.value}` : 'https://pow.co/api/v1/boost/rankings/tags';
 
-  if (data.value?.rankings) {
+  const { data } = await useFetch(url);
+  // Update rankings based on fetched data
+  // Rest of the code
+    if (data.value?.rankings) {
     rankings.value = data.value.rankings
       .map((ranking) => {
         let tag = ranking.tag
@@ -70,8 +73,34 @@ onMounted(async () => {
       .filter((tag) => tag.tag != '\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
       .filter((tag) => tag.tag != '')
   }
+}
+const { pane } = useTweakPane()
 
-  console.log('rankings', rankings.value)
+const config = reactive({
+  orbitControlsEnabled: true,
+})
+
+const gl = reactive({
+  clearColor: '#595959',
+  powerPreference: 'high-performance',
+})
+
+const cleanString = (input) => {
+  var output = "";
+  for (var i=0; i<input.length; i++) {
+    if (input.charCodeAt(i) <= 127) {
+      output += input.charAt(i);
+    }
+  }
+  return output;
+}
+const rankings = ref([])
+
+onMounted(async () => {
+  // Fetch data and update rankings
+  await fetchData();
+
+
   await nextTick()
   createDebugPane()
 
@@ -104,12 +133,36 @@ onMounted(async () => {
 })
 
 function createDebugPane() {
-  pane.addSeparator()
-  pane.addInput(gl, 'clearColor', { label: 'Clear Color' })
-  pane.addSeparator()
+  pane.addSeparator();
+  pane.addInput(gl, 'clearColor', { label: 'Clear Color' });
+  pane.addSeparator();
   pane.addInput(config, 'orbitControlsEnabled', {
     label: 'Orbit Controls enabled',
-  })
+  });
+  pane.addSeparator();
+  console.log('currentTimestamp', currentTimestamp)
+  const timeFrameSelector = pane.addInput(timeFrame, 'timestamp', {
+    options: {
+      'Last 1 hour': 'last1hr',
+      'Last 24 hours': 'last24hr',
+      'Last 7 days': 'last7d',
+      'Last 1 month': 'last1m',
+      'All-time': 'alltime',
+    },
+      });
+  pane.addInput(maxSpheres, 'value', { label: 'Max Spheres', min: 1, max: 100 });
+
+  timeFrameSelector.on('change', function(ev) {
+      console.log(`change: ${ev.value}`);
+      console.log('this', this, this.timeFrame)
+      setNewTimeStamp(ev.value);
+    }
+  );
+};
+
+function setNewTimeStamp(value) {
+  timeFrame.timestamp = value;
+  fetchData();
 }
 
 function getPositionBasedOnDifficulty(difficulty) {
@@ -146,9 +199,9 @@ function getRandomRotation() {
 function getScaledRadius(difficulty) {
   // Scale the difficulty value to a desired range of radius values
   const minDifficulty = 0.000001
-  const maxDifficulty = 2
-  const minRadius = 0.05
-  const maxRadius = 5
+  const maxDifficulty = 5
+  const minRadius = 0.1
+  const maxRadius = 2.5
 
   // Map the difficulty value from its range to the radius range using a linear interpolation formula
   const scaledRadius =
@@ -161,28 +214,46 @@ function getScaledRadius(difficulty) {
 
   return scaledRadiusLimited
 }
-
 function checkCollision(newPosition, currentSphere, index) {
-  const collisionRadius = currentSphere.sphereRadius * 2 // Adjust the collision radius as per your requirement
+  const collisionRadius = currentSphere.sphereRadius * 2; // Adjust the collision radius as per your requirement
 
   for (let i = 0; i < rankings.value.length; i++) {
     if (i !== index) {
-      const otherSphere = rankings.value[i]
-      const distance = getDistance(newPosition, otherSphere.position)
+      const otherSphere = rankings.value[i];
 
-      if (distance < collisionRadius) {
-        return true // Collision detected
+      // Calculate AABBs for the current sphere and the other sphere
+      const currentAABB = {
+        minX: currentSphere.position[0] - collisionRadius,
+        maxX: currentSphere.position[0] + collisionRadius,
+        minY: currentSphere.position[1] - collisionRadius,
+        maxY: currentSphere.position[1] + collisionRadius,
+        minZ: currentSphere.position[2] - collisionRadius,
+        maxZ: currentSphere.position[2] + collisionRadius,
+      };
+
+      const otherAABB = {
+        minX: otherSphere.position[0] - collisionRadius,
+        maxX: otherSphere.position[0] + collisionRadius,
+        minY: otherSphere.position[1] - collisionRadius,
+        maxY: otherSphere.position[1] + collisionRadius,
+        minZ: otherSphere.position[2] - collisionRadius,
+        maxZ: otherSphere.position[2] + collisionRadius,
+      };
+
+      // Check for AABB intersection
+      if (
+        currentAABB.minX <= otherAABB.maxX &&
+        currentAABB.maxX >= otherAABB.minX &&
+        currentAABB.minY <= otherAABB.maxY &&
+        currentAABB.maxY >= otherAABB.minY &&
+        currentAABB.minZ <= otherAABB.maxZ &&
+        currentAABB.maxZ >= otherAABB.minZ
+      ) {
+        return true; // Collision detected
       }
     }
   }
 
-  return false // No collision detected
-}
-
-function getDistance(position1, position2) {
-  const dx = position2[0] - position1[0]
-  const dy = position2[1] - position1[1]
-  const dz = position2[2] - position1[2]
-  return Math.sqrt(dx * dx + dy * dy + dz * dz)
+  return false; // No collision detected
 }
 </script>

@@ -1,46 +1,50 @@
 <template>
-    <TresCanvas v-bind="gl" window-size>
-      <TresPerspectiveCamera :position="[0, 1.7, 30]" :look-at="[0, 0, 0]" />
+  <TresCanvas v-bind="gl" window-size>
+    <TresPerspectiveCamera :position="[0, 1.7, 30]" :look-at="[0, 0, 0]" />
 
-      <OrbitControls :enabled="config.orbitControlsEnabled" />
-      <Stars/>
-      <SampleSphere
+    <OrbitControls :enabled="config.orbitControlsEnabled" />
+    <Stars/>
+    <SampleSphere
       v-for="item in rankings"
       :key="item.tag"
-      :position="getRandomPosition()"
+      :position="item.position"
       :sphereRadius="getScaledRadius(item.difficulty)"
       :tag="item.tag"
     />
-         </TresCanvas>
-  </template>
+  </TresCanvas>
+</template>
 
-  <script setup>
-  import { OrbitControls, useTweakPane } from '@tresjs/cientos'
-  import { reactive, ref, onMounted, nextTick } from 'vue'
-  const { pane } = useTweakPane()
+<script setup>
+import { OrbitControls, useTweakPane } from '@tresjs/cientos'
+import { reactive, ref, onMounted, nextTick } from 'vue'
+import { useRenderLoop } from '@tresjs/core'
+const { onLoop } = useRenderLoop()
 
-  const config = reactive({
-    orbitControlsEnabled: true,
-  })
+const { pane } = useTweakPane()
 
-  const gl = reactive({
-    clearColor: '#595959',
-    powerPreference: 'high-performance',
-  })
+const config = reactive({
+  orbitControlsEnabled: true,
+})
 
-  const cleanString = (input) => {
-    console.log('input', input)
-    var output = "";
-    for (var i=0; i<input.length; i++) {
-        if (input.charCodeAt(i) <= 127) {
-            output += input.charAt(i);
-        }
+const gl = reactive({
+  clearColor: '#595959',
+  powerPreference: 'high-performance',
+})
+
+const cleanString = (input) => {
+  console.log('input', input)
+  var output = "";
+  for (var i=0; i<input.length; i++) {
+    if (input.charCodeAt(i) <= 127) {
+      output += input.charAt(i);
     }
-    return output;
+  }
+  return output;
 }
-  const rankings = ref([])
+const rankings = ref([])
 
-  onMounted(async () => {
+onMounted(async () => {
+  // Fetch data and update rankings
   const { data } = await useFetch('https://pow.co/api/v1/boost/rankings/tags?start_date=1687726330')
 
   if (data.value?.rankings) {
@@ -54,7 +58,10 @@
           tag = ''
         }
         return Object.assign(ranking, {
-          tag
+          tag,
+          position: getPositionBasedOnDifficulty(ranking.difficulty),
+          rotation: getRandomRotation(),
+          orbitSpeed: getRandomNumber(0, 0.5) + ranking.difficulty * 0.1, // Random orbit speed between 0.1 and 0.6 with higher difficulty resulting in higher speed
         })
       })
       .filter((tag) => !/\s/.test(tag.tag))
@@ -66,39 +73,60 @@
   console.log('rankings', rankings.value)
   await nextTick()
   createDebugPane()
+
+  onLoop(({ elapsed }) => {
+    console.log('elapsed', elapsed)
+    rankings.value.forEach((item) => {
+      const angle = elapsed * item.orbitSpeed // Adjust the speed of rotation as per your requirement
+      const distanceFromCenter = 15 - (item.difficulty * 10) // Adjust the scaling factor as per your requirement
+      const newPosition = getPositionBasedOnAngle(angle, distanceFromCenter, item.rotation)
+
+      item.position = newPosition
+    })
+  })
 })
 
+function createDebugPane() {
+  pane.addSeparator()
+  pane.addInput(gl, 'clearColor', { label: 'Clear Color' })
+  pane.addSeparator()
+  pane.addInput(config, 'orbitControlsEnabled', {
+    label: 'Orbit Controls enabled',
+  })
+}
 
+function getPositionBasedOnDifficulty(difficulty) {
+  const minDistance = 10 // Minimum distance between spheres
+  const maxDistance = 15 // Maximum distance from the center
 
-  function createDebugPane() {
-    pane.addSeparator()
-    pane.addInput(gl, 'clearColor', { label: 'Clear Color' })
-    pane.addSeparator()
-    pane.addInput(config, 'orbitControlsEnabled', {
-      label: 'Orbit Controls enabled',
-    })
-    // pane.addSeparator()
+  const angle = getRandomNumber(0, 2 * Math.PI)
+  const distanceFromCenter = getRandomNumber(minDistance, maxDistance) - difficulty * 10 // Adjust the scaling factor as per your requirement
 
-    // pane.addButton({ title: 'Increase counter (Pinia)' }).on('click', () => {
-    //   // sampleStore.increment()
-    // })
-    // pane.addButton({ title: 'Decreate counter (Pinia)' }).on('click', () => {
-    //   // sampleStore.decrement()
-    // })
-  }
+  const x = distanceFromCenter * Math.cos(-angle) // Negate the angle to spin clockwise
+  const y = distanceFromCenter * Math.sin(-angle) // Negate the angle to spin clockwise
+  const z = 0
+  return [x, y, z]
+}
 
-  function getRandomPosition() {
-    const x = getRandomNumber(-10, 10)
-    const y = getRandomNumber(-10, 10)
-    const z = getRandomNumber(-10, 10)
-    return [x, y, z]
-  }
+function getPositionBasedOnAngle(angle, distanceFromCenter, rotation) {
+  const x = distanceFromCenter * Math.cos(-angle + rotation[0]) // Negate the angle to spin clockwise
+  const y = distanceFromCenter * Math.sin(-angle + rotation[1]) // Negate the angle to spin clockwise
+  const z = distanceFromCenter * Math.cos(-angle + rotation[2]) // Negate the angle to spin clockwise
+  return [x, y, z]
+}
 
-  function getRandomNumber(min, max) {
-    return Math.random() * (max - min) + min
-  }
+function getRandomNumber(min, max) {
+  return Math.random() * (max - min) + min
+}
 
-  function getScaledRadius(difficulty) {
+function getRandomRotation() {
+  const rotationX = getRandomNumber(0, 2 * Math.PI)
+  const rotationY = getRandomNumber(0, 2 * Math.PI)
+  const rotationZ = getRandomNumber(0, 2 * Math.PI)
+  return [rotationX, rotationY, rotationZ]
+}
+
+function getScaledRadius(difficulty) {
   // Scale the difficulty value to a desired range of radius values
   const minDifficulty = 0.000001
   const maxDifficulty = 2
@@ -116,4 +144,4 @@
 
   return scaledRadiusLimited
 }
-  </script>
+</script>

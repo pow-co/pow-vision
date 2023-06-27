@@ -19,7 +19,7 @@
       </Text3D>
     </Suspense>
 
-    <Sphere :args="[sphereRadius, 12, 12]" color="pink">
+    <Sphere @click="showTagAlert" :args="[sphereRadius, 12, 12]" color="pink">
       <TresMeshNormalMaterial />
     </Sphere>
   </TresMesh>
@@ -39,7 +39,9 @@
       type: String,
     },
   })
-
+  const showTagAlert= () => {
+      alert('Current RTAG: ' + props.tag)
+    }
   //
   // Refs
   //
@@ -63,6 +65,8 @@
   // Methods
   //
   function onBoxClick(event) {
+    alert('Current RTAG: ' + this.tag)
+
     if ($gsap.isTweening(event.object.scale)) return
 
     $gsap.to(event.object.scale, {

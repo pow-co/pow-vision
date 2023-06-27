@@ -61,7 +61,8 @@ onMounted(async () => {
           tag,
           position: getPositionBasedOnDifficulty(ranking.difficulty),
           rotation: getRandomRotation(),
-          orbitSpeed: getRandomNumber(0, 0.5) + ranking.difficulty * 0.1, // Random orbit speed between 0.1 and 0.6 with higher difficulty resulting in higher speed
+          orbitSpeed: getRandomNumber(0, 0.01) + ranking.difficulty * 0.1, // Random orbit speed between 0.1 and 0.6 with higher difficulty resulting in higher speed
+          velocity: [0, 0, 0], // Initial velocity of the sphere
         })
       })
       .filter((tag) => !/\s/.test(tag.tag))
@@ -75,13 +76,29 @@ onMounted(async () => {
   createDebugPane()
 
   onLoop(({ elapsed }) => {
-    console.log('elapsed', elapsed)
-    rankings.value.forEach((item) => {
+    rankings.value.forEach((item, index) => {
       const angle = elapsed * item.orbitSpeed // Adjust the speed of rotation as per your requirement
       const distanceFromCenter = 15 - (item.difficulty * 10) // Adjust the scaling factor as per your requirement
-      const newPosition = getPositionBasedOnAngle(angle, distanceFromCenter, item.rotation)
 
-      item.position = newPosition
+      // Update position and check for collisions
+      const newPosition = getPositionBasedOnAngle(angle, distanceFromCenter, item.rotation)
+      const collided = checkCollision(newPosition, item, index)
+
+      if (collided) {
+        // Reverse the orbit direction and update velocity
+        item.orbitSpeed *= -1
+        item.velocity = [0, 0, 0]
+      } else {
+        // Update position based on velocity
+        item.position = newPosition
+
+        // Apply gravity and update velocity
+        const gravity = 0.005
+        item.velocity[1] -= gravity
+        item.position[0] += item.velocity[0]
+        item.position[1] += item.velocity[1]
+        item.position[2] += item.velocity[2]
+      }
     })
   })
 })
@@ -143,5 +160,29 @@ function getScaledRadius(difficulty) {
   const scaledRadiusLimited = parseFloat(scaledRadius.toFixed(2))
 
   return scaledRadiusLimited
+}
+
+function checkCollision(newPosition, currentSphere, index) {
+  const collisionRadius = currentSphere.sphereRadius * 2 // Adjust the collision radius as per your requirement
+
+  for (let i = 0; i < rankings.value.length; i++) {
+    if (i !== index) {
+      const otherSphere = rankings.value[i]
+      const distance = getDistance(newPosition, otherSphere.position)
+
+      if (distance < collisionRadius) {
+        return true // Collision detected
+      }
+    }
+  }
+
+  return false // No collision detected
+}
+
+function getDistance(position1, position2) {
+  const dx = position2[0] - position1[0]
+  const dy = position2[1] - position1[1]
+  const dz = position2[2] - position1[2]
+  return Math.sqrt(dx * dx + dy * dy + dz * dz)
 }
 </script>

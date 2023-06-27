@@ -6,11 +6,12 @@
       <OrbitControls :enabled="config.orbitControlsEnabled" />
       <Stars/>
       <SampleSphere
-      v-for="item in filteredRankings"
-      :key="item.tag"
-      :position="item.position"
-      :sphereRadius="getScaledRadius(item.difficulty)"
-      :tag="item.tag"
+        v-for="item in filteredRankings"
+        :key="item.tag"
+        :position="item.position"
+        :difficulty="item.difficulty"
+        :sphereRadius="getScaledRadius(item.difficulty)"
+        :tag="item.tag"
       />
     </TresCanvas>
   </div>
@@ -21,7 +22,7 @@ import { OrbitControls, useTweakPane } from '@tresjs/cientos'
 import { reactive, ref, onMounted, nextTick, computed } from 'vue'
 import { useRenderLoop } from '@tresjs/core'
 const { onLoop } = useRenderLoop()
-const timeFrame = reactive({timestamp: 'last7d'});
+const timeFrame = reactive({ timestamp: 'last7d' });
 const maxSpheres = ref(25); // Default maximum number of spheres
 const filteredRankings = computed(() => rankings.value.slice(0, maxSpheres.value));
 
@@ -36,6 +37,8 @@ const currentTimestamp = computed(() => {
       return now - (7 * 24 * 60 * 60);
     case 'last1m':
       return now - (30 * 24 * 60 * 60);
+    case 'lastyear':
+      return now - (365 * 24 * 60 * 60);
     case 'alltime':
     default:
       return null;
@@ -44,13 +47,10 @@ const currentTimestamp = computed(() => {
 
 async function fetchData() {
   const timestamp = currentTimestamp.value;
-  console.log('currentTimestamp', currentTimestamp)
   const url = timestamp ? `https://pow.co/api/v1/boost/rankings/tags?start_date=${currentTimestamp.value}` : 'https://pow.co/api/v1/boost/rankings/tags';
 
   const { data } = await useFetch(url);
-  // Update rankings based on fetched data
-  // Rest of the code
-    if (data.value?.rankings) {
+  if (data.value?.rankings) {
     rankings.value = data.value.rankings
       .map((ranking) => {
         let tag = ranking.tag
@@ -64,8 +64,8 @@ async function fetchData() {
           tag,
           position: getPositionBasedOnDifficulty(ranking.difficulty),
           rotation: getRandomRotation(),
-          orbitSpeed: getRandomNumber(0, 0.01) + ranking.difficulty * 0.1, // Random orbit speed between 0.1 and 0.6 with higher difficulty resulting in higher speed
-          velocity: [0, 0, 0], // Initial velocity of the sphere
+          orbitSpeed: getRandomNumber(0, 0.01) + 0.1,
+          velocity: [0, 0, 0],
         })
       })
       .filter((tag) => !/\s/.test(tag.tag))
@@ -74,6 +74,7 @@ async function fetchData() {
       .filter((tag) => tag.tag != '')
   }
 }
+
 const { pane } = useTweakPane()
 
 const config = reactive({
@@ -87,49 +88,42 @@ const gl = reactive({
 
 const cleanString = (input) => {
   var output = "";
-  for (var i=0; i<input.length; i++) {
+  for (var i = 0; i < input.length; i++) {
     if (input.charCodeAt(i) <= 127) {
       output += input.charAt(i);
     }
   }
   return output;
 }
+
 const rankings = ref([])
 
 onMounted(async () => {
-  // Fetch data and update rankings
   await fetchData();
-
 
   await nextTick()
   createDebugPane()
 
   onLoop(({ elapsed }) => {
-    filteredRankings.value.forEach((item, index) => {
-      const angle = elapsed * item.orbitSpeed // Adjust the speed of rotation as per your requirement
-      const distanceFromCenter = 15 - (item.difficulty * 10) // Adjust the scaling factor as per your requirement
+  filteredRankings.value.forEach((item) => {
+    const angle = elapsed * item.orbitSpeed;
 
-      // Update position and check for collisions
-      const newPosition = getPositionBasedOnAngle(angle, distanceFromCenter, item.rotation)
-      const collided = checkCollision(newPosition, item, index)
+    // Calculate min and max difficulties based on filtered rankings
+    const minDifficulty = filteredRankings.value[filteredRankings.value.length - 1].difficulty;
+    const maxDifficulty = filteredRankings.value[0].difficulty;
 
-      if (collided) {
-        // Reverse the orbit direction and update velocity
-        item.orbitSpeed *= -1
-        item.velocity = [0, 0, 0]
-      } else {
-        // Update position based on velocity
-        item.position = newPosition
+    const minDistanceFromCenter = 5;
+    const maxDistanceFromCenter = 15;
+    const distanceFromCenter =
+      ((maxDifficulty - item.difficulty) *
+        (maxDistanceFromCenter - minDistanceFromCenter)) /
+        (maxDifficulty - minDifficulty) +
+      minDistanceFromCenter;
 
-        // Apply gravity and update velocity
-        const gravity = 0.005
-        item.velocity[1] -= gravity
-        item.position[0] += item.velocity[0]
-        item.position[1] += item.velocity[1]
-        item.position[2] += item.velocity[2]
-      }
-    })
-  })
+    const newPosition = getPositionBasedOnAngle(angle, distanceFromCenter, item.rotation);
+    item.position = newPosition;
+  });
+});
 })
 
 function createDebugPane() {
@@ -140,25 +134,22 @@ function createDebugPane() {
     label: 'Orbit Controls enabled',
   });
   pane.addSeparator();
-  console.log('currentTimestamp', currentTimestamp)
   const timeFrameSelector = pane.addInput(timeFrame, 'timestamp', {
     options: {
       'Last 1 hour': 'last1hr',
       'Last 24 hours': 'last24hr',
       'Last 7 days': 'last7d',
       'Last 1 month': 'last1m',
+      'Last year': 'lastyear',
       'All-time': 'alltime',
     },
-      });
+  });
   pane.addInput(maxSpheres, 'value', { label: 'Max Spheres', min: 1, max: 100 });
 
-  timeFrameSelector.on('change', function(ev) {
-      console.log(`change: ${ev.value}`);
-      console.log('this', this, this.timeFrame)
-      setNewTimeStamp(ev.value);
-    }
-  );
-};
+  timeFrameSelector.on('change', function (ev) {
+    setNewTimeStamp(ev.value);
+  });
+}
 
 function setNewTimeStamp(value) {
   timeFrame.timestamp = value;
@@ -166,22 +157,23 @@ function setNewTimeStamp(value) {
 }
 
 function getPositionBasedOnDifficulty(difficulty) {
-  const minDistance = 10 // Minimum distance between spheres
-  const maxDistance = 15 // Maximum distance from the center
+  const minDistance = 0;
+  const maxDistance = 100;
+  const distanceFromOrigin = minDistance + difficulty * 2; // Modified line
 
-  const angle = getRandomNumber(0, 2 * Math.PI)
-  const distanceFromCenter = getRandomNumber(minDistance, maxDistance) - difficulty * 10 // Adjust the scaling factor as per your requirement
+  const angle = getRandomNumber(0, 2 * Math.PI);
+  const offset = getRandomNumber(0, 2); // Adjust this value to control the randomness
 
-  const x = distanceFromCenter * Math.cos(-angle) // Negate the angle to spin clockwise
-  const y = distanceFromCenter * Math.sin(-angle) // Negate the angle to spin clockwise
-  const z = 0
-  return [x, y, z]
+  const x = distanceFromOrigin * Math.cos(angle);
+  const y = distanceFromOrigin * Math.sin(angle);
+  const z = 0;
+
+  return [x, y, z];
 }
-
 function getPositionBasedOnAngle(angle, distanceFromCenter, rotation) {
-  const x = distanceFromCenter * Math.cos(-angle + rotation[0]) // Negate the angle to spin clockwise
-  const y = distanceFromCenter * Math.sin(-angle + rotation[1]) // Negate the angle to spin clockwise
-  const z = distanceFromCenter * Math.cos(-angle + rotation[2]) // Negate the angle to spin clockwise
+  const x = distanceFromCenter * Math.cos(-angle + rotation[0])
+  const y = distanceFromCenter * Math.sin(-angle + rotation[1])
+  const z = distanceFromCenter * Math.cos(-angle + rotation[2])
   return [x, y, z]
 }
 
@@ -197,63 +189,21 @@ function getRandomRotation() {
 }
 
 function getScaledRadius(difficulty) {
-  // Scale the difficulty value to a desired range of radius values
-  const minDifficulty = 0.000001
-  const maxDifficulty = 5
-  const minRadius = 0.1
-  const maxRadius = 2.5
+  // Calculate min and max difficulties based on filtered rankings
+  const minDifficulty = filteredRankings.value[filteredRankings.value.length - 1].difficulty;
+  const maxDifficulty = filteredRankings.value[0].difficulty;
 
-  // Map the difficulty value from its range to the radius range using a linear interpolation formula
+  const minRadius = 0.2;
+  const maxRadius = 10;
+  const scalingFactor = 0.1; // Adjust this value to control the scaling
+
   const scaledRadius =
-    ((difficulty - minDifficulty) * (maxRadius - minRadius)) /
+    ((difficulty - minDifficulty) * scalingFactor * (maxRadius - minRadius)) /
     (maxDifficulty - minDifficulty) +
-    minRadius
+    minRadius;
 
-  // Limit the number of decimal places to 2
-  const scaledRadiusLimited = parseFloat(scaledRadius.toFixed(2))
+  const scaledRadiusLimited = parseFloat(scaledRadius.toFixed(2));
 
-  return scaledRadiusLimited
-}
-function checkCollision(newPosition, currentSphere, index) {
-  const collisionRadius = currentSphere.sphereRadius * 2; // Adjust the collision radius as per your requirement
-
-  for (let i = 0; i < filteredRankings.value.length; i++) {
-    if (i !== index) {
-      const otherSphere = filteredRankings.value[i];
-
-      // Calculate AABBs for the current sphere and the other sphere
-      const currentAABB = {
-        minX: currentSphere.position[0] - collisionRadius,
-        maxX: currentSphere.position[0] + collisionRadius,
-        minY: currentSphere.position[1] - collisionRadius,
-        maxY: currentSphere.position[1] + collisionRadius,
-        minZ: currentSphere.position[2] - collisionRadius,
-        maxZ: currentSphere.position[2] + collisionRadius,
-      };
-
-      const otherAABB = {
-        minX: otherSphere.position[0] - collisionRadius,
-        maxX: otherSphere.position[0] + collisionRadius,
-        minY: otherSphere.position[1] - collisionRadius,
-        maxY: otherSphere.position[1] + collisionRadius,
-        minZ: otherSphere.position[2] - collisionRadius,
-        maxZ: otherSphere.position[2] + collisionRadius,
-      };
-
-      // Check for AABB intersection
-      if (
-        currentAABB.minX <= otherAABB.maxX &&
-        currentAABB.maxX >= otherAABB.minX &&
-        currentAABB.minY <= otherAABB.maxY &&
-        currentAABB.maxY >= otherAABB.minY &&
-        currentAABB.minZ <= otherAABB.maxZ &&
-        currentAABB.maxZ >= otherAABB.minZ
-      ) {
-        return true; // Collision detected
-      }
-    }
-  }
-
-  return false; // No collision detected
+  return scaledRadiusLimited;
 }
 </script>

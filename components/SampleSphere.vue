@@ -38,6 +38,13 @@
     tag: {
       type: String,
     },
+    difficulty: {
+      type: Number,
+    },
+  })
+  const shortDifficulty = computed (() => {
+    // Difficulty to 2 decimal places
+    return props.difficulty.toFixed(2)
   })
   const showTagAlert= () => {
     // Open a new window and go to www.pow.co/topic/{tag}

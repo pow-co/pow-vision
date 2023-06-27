@@ -22,7 +22,7 @@ import { OrbitControls, useTweakPane } from '@tresjs/cientos'
 import { reactive, ref, onMounted, nextTick, computed } from 'vue'
 import { useRenderLoop } from '@tresjs/core'
 const { onLoop } = useRenderLoop()
-const timeFrame = reactive({ timestamp: 'last7d' });
+const timeFrame = reactive({ timestamp: 'last24hr' });
 const maxSpheres = ref(25); // Default maximum number of spheres
 const filteredRankings = computed(() => rankings.value.slice(0, maxSpheres.value));
 

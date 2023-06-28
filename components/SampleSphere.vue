@@ -1,7 +1,6 @@
 <template>
   <TresMesh
     ref="boxRef"
-    @click="onBoxClick"
     @pointer-enter="onPointerenter"
     @pointer-leave="onPointerleave"
   >
@@ -19,7 +18,10 @@
       </Text3D>
     </Suspense>
 
-    <Sphere @click="showTagAlert" :args="[sphereRadius, 12, 12]" color="pink">
+    <Sphere     @click="showTagAlert"
+    @pointer-enter="onPointerenter"
+    @pointer-leave="onPointerleave"
+    :args="[sphereRadius, 12, 12]" color="pink">
       <TresMeshNormalMaterial />
     </Sphere>
   </TresMesh>
@@ -48,7 +50,7 @@
   })
   const showTagAlert= () => {
     // Open a new window and go to www.pow.co/topic/{tag}
-      window.open(`https://www.pow.co/topics/${props.tag}`, '_blank')
+    window.open(`https://pow.co/topics/${props.tag}`, '_blank', 'noopener noreferrer')
     }
   //
   // Refs

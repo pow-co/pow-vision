@@ -18,6 +18,9 @@ devDependencies:
   '@nuxt/devtools':
     specifier: latest
     version: 0.6.4(nuxt@3.6.1)(vite@4.3.9)
+  '@nuxtjs/plausible':
+    specifier: ^0.2.1
+    version: 0.2.1
   '@types/node':
     specifier: ^18
     version: 18.0.0
@@ -1160,6 +1163,18 @@ packages:
       - vls
       - vti
       - vue-tsc
+    dev: true
+
+  /@nuxtjs/plausible@0.2.1:
+    resolution: {integrity: sha512-1AyV9woFeZKBhwYy05S7NBk4jeAXzWcF/SIK/S/GZ8C86G8x7f2hR2eJi9FRRQYGwHutBx2guU4tZAW4J71Azg==}
+    dependencies:
+      '@nuxt/kit': 3.6.1
+      defu: 6.1.2
+      pathe: 1.1.1
+      plausible-tracker: 0.3.8
+    transitivePeerDependencies:
+      - rollup
+      - supports-color
     dev: true
 
   /@pkgjs/parseargs@0.11.0:
@@ -4968,6 +4983,11 @@ packages:
       jsonc-parser: 3.2.0
       mlly: 1.4.0
       pathe: 1.1.1
+
+  /plausible-tracker@0.3.8:
+    resolution: {integrity: sha512-lmOWYQ7s9KOUJ1R+YTOR3HrjdbxIS2Z4de0P/Jx2dQPteznJl2eX3tXxKClpvbfyGP59B5bbhW8ftN59HbbFSg==}
+    engines: {node: '>=10'}
+    dev: true
 
   /postcss-calc@9.0.1(postcss@8.4.24):
     resolution: {integrity: sha512-TipgjGyzP5QzEhsOZUaIkeO5mKeMFpebWzRogWG/ysonUlnHcq5aJe0jOjpfzUU8PeSaBQnrE8ehR0QA5vs8PQ==}

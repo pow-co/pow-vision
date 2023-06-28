@@ -1,6 +1,6 @@
 <template>
   <div>
-    <TresCanvas v-if="filteredRankings.length" v-bind="gl" window-size>
+    <TresCanvas v-if="!loading && filteredRankings.length" v-bind="gl" window-size>
       <TresPerspectiveCamera :position="[0, 1.7, 30]" :look-at="[0, 0, 0]" />
 
       <OrbitControls :enabled="config.orbitControlsEnabled" />
@@ -23,6 +23,7 @@ import { reactive, ref, onMounted, nextTick, computed } from 'vue'
 import { useRenderLoop } from '@tresjs/core'
 const { onLoop } = useRenderLoop()
 const timeFrame = reactive({ timestamp: 'last24hr' });
+const loading = ref(true);
 const maxSpheres = ref(25); // Default maximum number of spheres
 const filteredRankings = computed(() => rankings.value.slice(0, maxSpheres.value));
 
@@ -46,36 +47,53 @@ const currentTimestamp = computed(() => {
 });
 
 async function fetchData() {
+  loading.value = true
   const timestamp = currentTimestamp.value;
-  const url = timestamp ? `https://pow.co/api/v1/boost/rankings/tags?start_date=${currentTimestamp.value}` : 'https://pow.co/api/v1/boost/rankings/tags';
+  const url = timestamp
+    ? `https://pow.co/api/v1/boost/rankings/tags?start_date=${currentTimestamp.value}`
+    : 'https://pow.co/api/v1/boost/rankings/tags';
 
-  const { data } = await useFetch(url);
-  if (data.value?.rankings) {
-    const newRankings = data.value.rankings
-      .map((ranking) => {
-        let tag = ranking.tag
-        try {
-          tag = Buffer.from(ranking.tag, 'hex').toString()
-          tag = cleanString(tag)
-        } catch (error) {
-          tag = ''
-        }
-        return Object.assign(ranking, {
-          tag,
-          position: getPositionBasedOnDifficulty(ranking.difficulty),
-          rotation: getRandomRotation(),
-          orbitSpeed: getRandomNumber(0, 0.01) + 0.1,
-          velocity: [0, 0, 0],
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.rankings) {
+      const newRankings = data.rankings
+        .map((ranking) => {
+          let tag = ranking.tag;
+          try {
+            tag = Buffer.from(ranking.tag, 'hex').toString();
+            tag = cleanString(tag);
+          } catch (error) {
+            tag = '';
+          }
+          return {
+            ...ranking,
+            tag,
+            position: getPositionBasedOnDifficulty(ranking.difficulty),
+            rotation: getRandomRotation(),
+            orbitSpeed: getRandomNumber(0, 0.01) + 0.05,
+            velocity: [0, 0, 0],
+          };
         })
-      })
-      .filter((tag) => !/\s/.test(tag.tag))
-      .filter((tag) => !/[&\/\\#,()$~%'":?<>{}]/.test(tag.tag))
-      .filter((tag) => tag.tag != '\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
-      .filter((tag) => tag.tag != '');
+        .filter((tag) => !/\s/.test(tag.tag))
+        .filter((tag) => !/[&\/\\#,()$~%'":?<>{}]/.test(tag.tag))
+        .filter(
+          (tag) =>
+            tag.tag !==
+            '\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+        )
+        .filter((tag) => tag.tag !== '');
 
-    rankings.value = newRankings;
+        rankings.value = newRankings;
+      filteredRankings.length = maxSpheres.value;
+    }
+  } catch (error) {
+    console.error('Error fetching data:', error);
   }
+  loading.value = false
 }
+
 const { pane } = useTweakPane()
 
 const config = reactive({
@@ -101,12 +119,10 @@ const rankings = ref([])
 
 onMounted(async () => {
   await fetchData();
-
-  await nextTick()
-  createDebugPane()
-
+  await nextTick();
+  createDebugPane();
   onLoop(({ elapsed }) => {
-  filteredRankings.value.forEach((item) => {
+    filteredRankings.value.forEach((item) => {
     const angle = elapsed * item.orbitSpeed;
 
     // Calculate min and max difficulties based on filtered rankings

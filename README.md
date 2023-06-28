@@ -1,40 +1,47 @@
-# Nuxt 3 Minimal Starter
+# BoostPOW 3D Renderer
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+This project is a 3D renderer that showcases objects with Boost Proof-of-Work (BoostPOW) attached, as described by Daniel Krawisz. The sizes of the objects are based on the difficulty of the BoostPOW, and the text is inspired by the "Writing in the Sky" cartoon created by the project's creator.
 
-## Setup
+## Technologies Used
 
-Make sure to install the dependencies:
+The BoostPOW 3D Renderer project utilizes the following technologies:
 
-```bash
-# npm
-npm install
+- [Nuxt.js](https://nuxtjs.org): A Vue.js framework for building server-side rendered and static websites.
+- [TresJS](https://tres.js.org): A 3D rendering engine based on WebGL and Three.js, providing powerful tools for creating interactive 3D experiences.
 
-# pnpm
-pnpm install
+## Project Setup
 
-# yarn
-yarn install
-```
+To get started with the BoostPOW 3D Renderer, follow the steps below:
 
-## Development Server
+1. Install the project dependencies using your preferred package manager:
 
-Start the development server on `http://localhost:3000`:
+   ```bash
+   # npm
+   npm install
 
-```bash
-# npm
-npm run dev
+   # pnpm
+   pnpm install
 
-# pnpm
-pnpm run dev
+   # yarn
+   yarn install
+   ```
 
-# yarn
-yarn dev
-```
+2. Start the development server on `http://localhost:3000`:
 
-## Production
+   ```bash
+   # npm
+   npm run dev
 
-Build the application for production:
+   # pnpm
+   pnpm run dev
+
+   # yarn
+   yarn dev
+   ```
+
+## Building for Production
+
+To build the BoostPOW 3D Renderer for production, use the following command:
 
 ```bash
 # npm
@@ -47,7 +54,7 @@ pnpm run build
 yarn build
 ```
 
-Locally preview production build:
+To preview the production build locally, use the following command:
 
 ```bash
 # npm
@@ -60,4 +67,13 @@ pnpm run preview
 yarn preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+For detailed deployment instructions, please refer to the deployment documentation provided by Nuxt.js.
+
+## Additional Resources
+
+To learn more about Nuxt.js and TresJS, consult their official documentation:
+
+- [Nuxt.js Documentation](https://nuxtjs.org/docs)
+- [TresJS Documentation](https://tres.js.org/docs)
+
+Feel free to explore and modify the BoostPOW 3D Renderer project based on your requirements and creative ideas!

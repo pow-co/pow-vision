@@ -1,6 +1,6 @@
 # BoostPOW 3D Renderer
 
-This project is a 3D renderer that showcases objects with Boost Proof-of-Work (BoostPOW) attached, as described by Daniel Krawisz. The sizes of the objects are based on the difficulty of the BoostPOW, and the text is inspired by the "Writing in the Sky" cartoon created by the project's creator.
+This project is a 3D renderer that showcases tags on pow.co that with Boost Proof-of-Work (BoostPOW) attached, as described by Daniel Krawisz. The sizes of the objects are based on the difficulty of the BoostPOW, and the text is inspired by the "Look up At the Sky" video created by the project's creator.
 
 ## Technologies Used
 

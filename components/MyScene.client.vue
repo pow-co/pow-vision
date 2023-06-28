@@ -51,7 +51,7 @@ async function fetchData() {
 
   const { data } = await useFetch(url);
   if (data.value?.rankings) {
-    rankings.value = data.value.rankings
+    const newRankings = data.value.rankings
       .map((ranking) => {
         let tag = ranking.tag
         try {
@@ -71,10 +71,11 @@ async function fetchData() {
       .filter((tag) => !/\s/.test(tag.tag))
       .filter((tag) => !/[&\/\\#,()$~%'":?<>{}]/.test(tag.tag))
       .filter((tag) => tag.tag != '\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00')
-      .filter((tag) => tag.tag != '')
+      .filter((tag) => tag.tag != '');
+
+    rankings.value = newRankings;
   }
 }
-
 const { pane } = useTweakPane()
 
 const config = reactive({

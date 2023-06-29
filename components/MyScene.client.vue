@@ -1,6 +1,8 @@
 <template>
   <div>
-    <TresCanvas v-if="!loading && filteredRankings.length" v-bind="gl" window-size>
+    <LoadSpinner v-if="loading" />
+
+    <TresCanvas v-if="!loading" v-bind="gl" window-size>
       <TresPerspectiveCamera :position="[0, 1.7, 30]" :look-at="[0, 0, 0]" />
 
       <OrbitControls :enabled="config.orbitControlsEnabled" />

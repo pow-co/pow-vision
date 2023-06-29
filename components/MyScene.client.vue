@@ -104,7 +104,6 @@ const config = reactive({
 
 const gl = reactive({
   clearColor: '#595959',
-  powerPreference: 'high-performance',
 })
 
 const cleanString = (input) => {

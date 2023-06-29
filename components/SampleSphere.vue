@@ -31,7 +31,7 @@
     @click="showTagAlert"
     @pointer-enter="onPointerenter"
     @pointer-leave="onPointerleave"
-    :args="[sphereRadius, 12, 12]" color="pink">
+    :args="[sphereRadius, 12, 12]">
       <TresMeshNormalMaterial />
     </Sphere>
   </TresMesh>

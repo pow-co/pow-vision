@@ -1,4 +1,4 @@
-# BoostPOW 3D Renderer
+# Ordinal Vision - A BoostPOW 3D Renderer
 
 This project is a 3D renderer that showcases tags on pow.co with Boost Proof-of-Work (BoostPOW) attached, as described by Daniel Krawisz. The sizes of the objects are based on the difficulty of the BoostPOW, and the text is inspired by the "[Look up At the Sky](https://vimeo.com/689339296)" video created by the project's creator.
 

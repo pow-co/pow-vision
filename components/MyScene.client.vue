@@ -9,8 +9,9 @@
       <Stars/>
       <SampleSphere
         v-for="item in filteredRankings"
-        :key="item.tag"
         :position="item.position"
+        :ref="item.tag"
+        :key="item.tag"
         :difficulty="item.difficulty"
         :sphereRadius="getScaledRadius(item.difficulty)"
         :tag="item.tag"
@@ -26,7 +27,7 @@ import { useRenderLoop } from '@tresjs/core'
 const { onLoop } = useRenderLoop()
 const timeFrame = reactive({ timestamp: 'last24hr' });
 const loading = ref(true);
-const maxSpheres = ref(25); // Default maximum number of spheres
+const maxSpheres = ref(50); // Default maximum number of spheres
 const filteredRankings = computed(() => rankings.value.slice(0, maxSpheres.value));
 
 const currentTimestamp = computed(() => {
@@ -123,7 +124,7 @@ onMounted(async () => {
   await nextTick();
   createDebugPane();
   onLoop(({ elapsed }) => {
-    filteredRankings.value.forEach((item) => {
+    filteredRankings.value.forEach((item, index) => {
     const angle = elapsed * item.orbitSpeed;
 
     // Calculate min and max difficulties based on filtered rankings

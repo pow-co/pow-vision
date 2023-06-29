@@ -7,7 +7,7 @@
   <BaseText
   v-if="showDifficulty"
   @click="showTagAlert"
-  :position="{x: 0, y: -sphereRadius, z: 0}"
+  :position="{x: -sphereRadius, y: -sphereRadius, z: 0}"
   :text="`${shortDifficulty}`"
   :size="sphereRadius * 0.75"
   :height="0.5"
@@ -56,8 +56,8 @@
   })
   const showDifficulty = ref(false)
   const shortDifficulty = computed (() => {
-    // Difficulty to 2 decimal places
-    return props.difficulty.toFixed(2)
+    // Difficulty to 4 decimal places or less, if zereos after decimal, remove them
+    return props.difficulty.toFixed(4).replace(/\.?0*$/,'')
   })
   const showTagAlert= () => {
     // Open a new window and go to www.pow.co/topic/{tag}

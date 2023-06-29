@@ -4,13 +4,22 @@
     @pointer-enter="onPointerenter"
     @pointer-leave="onPointerleave"
   >
+  <BaseText
+  v-if="showDifficulty"
+  @click="showTagAlert"
+  :position="{x: 0, y: -sphereRadius, z: 0}"
+  :text="`${shortDifficulty}`"
+  :size="sphereRadius * 0.75"
+  :height="0.5"
+  :curveSegments="1"
+/>
     <Suspense>
       <Text3D
         font="https://raw.githubusercontent.com/Tresjs/assets/main/fonts/FiraCodeRegular.json"
         center
         :position="[sphereRadius, sphereRadius, sphereRadius]"
         :text="`${tag}`"
-        :size="sphereRadius"
+        :size="sphereRadius*1.1"
         :height="0.5"
         :curveSegments="1"
       >
@@ -18,7 +27,8 @@
       </Text3D>
     </Suspense>
 
-    <Sphere     @click="showTagAlert"
+    <Sphere
+    @click="showTagAlert"
     @pointer-enter="onPointerenter"
     @pointer-leave="onPointerleave"
     :args="[sphereRadius, 12, 12]" color="pink">
@@ -44,6 +54,7 @@
       type: Number,
     },
   })
+  const showDifficulty = ref(false)
   const shortDifficulty = computed (() => {
     // Difficulty to 2 decimal places
     return props.difficulty.toFixed(2)
@@ -91,9 +102,11 @@
 
   function onPointerenter() {
     document.body.style.cursor = 'pointer'
+    showDifficulty.value = true
   }
 
   function onPointerleave() {
     document.body.style.cursor = null
+    showDifficulty.value = false
   }
 </script>

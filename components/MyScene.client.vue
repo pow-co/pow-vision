@@ -72,7 +72,7 @@ async function fetchData() {
             tag,
             position: getPositionBasedOnDifficulty(ranking.difficulty),
             rotation: getRandomRotation(),
-            orbitSpeed: getRandomNumber(0, 0.01) + 0.05,
+            orbitSpeed: getRandomNumber(0, 0.01) + 0.01,
             velocity: [0, 0, 0],
           };
         })

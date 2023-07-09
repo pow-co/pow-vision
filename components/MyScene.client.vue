@@ -161,6 +161,17 @@ const rankings = ref([])
 
 onMounted(async () => {
   const route = useRoute()
+  const previewLinkTest = await useFetch('/api/preview', {
+
+query: {
+
+url: 'https://tresjs.org',
+
+}
+
+})
+
+console.log('previewLinkTest', previewLinkTest)
 
   console.log('route: ' + route.params.tag)
 

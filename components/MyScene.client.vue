@@ -1,7 +1,11 @@
 <template>
   <div>
     <LoadSpinner v-if="loading" />
-
+    <!-- <ContentViewer
+    :content="'asf'"
+    class="" size="sm" round
+     outline
+  /> -->
     <TresCanvas v-if="!loading" v-bind="gl" window-size>
       <TresPerspectiveCamera :position="[0, 1.7, 30]" :look-at="[0, 0, 0]" />
 
@@ -17,6 +21,7 @@
         :tag="item.tag"
       />
     </TresCanvas>
+
   </div>
 </template>
 
@@ -49,18 +54,53 @@ const currentTimestamp = computed(() => {
   }
 });
 
-async function fetchData() {
+async function fetchData(tag) {
+
+  let passedTag
+
+  if (tag) {
+    console.log('tag is : ', tag)
+    try {
+    passedTag = Buffer.from(tag, 'utf-8').toString('hex')
+        } catch (error) {
+          passedTag = '';
+        }
+  }
+
+  console.log('passedTag', passedTag)
+
   loading.value = true
   const timestamp = currentTimestamp.value;
-  const url = timestamp
+  let url = timestamp
     ? `https://pow.co/api/v1/boost/rankings/tags?start_date=${currentTimestamp.value}`
     : 'https://pow.co/api/v1/boost/rankings/tags';
+
+  if (passedTag) {
+    url = `https://pow.co/api/v1/boost/rankings?tag=${passedTag}`
+  }
 
   try {
     const response = await fetch(url);
     const data = await response.json();
 
-    if (data.rankings) {
+    console.log('data', data)
+
+    if (passedTag) {
+      const newRankings = data.rankings
+        .map((ranking) => {
+          return {
+            ...ranking,
+            position: getPositionBasedOnDifficulty(ranking.difficulty),
+            rotation: getRandomRotation(),
+            orbitSpeed: getRandomNumber(0, 0.01) + 0.01,
+            velocity: [0, 0, 0],
+          };
+        })
+
+        rankings.value = newRankings;
+      filteredRankings.length = maxSpheres.value;
+    }
+    else if (data.rankings) {
       const newRankings = data.rankings
         .map((ranking) => {
           let tag = ranking.tag;
@@ -120,7 +160,15 @@ const cleanString = (input) => {
 const rankings = ref([])
 
 onMounted(async () => {
-  await fetchData();
+  const route = useRoute()
+
+  console.log('route: ' + route.params.tag)
+
+  if (route?.params?.tag) {
+    const tag = route.params.tag
+    await fetchData(tag);
+  }
+
   await nextTick();
   createDebugPane();
   onLoop(({ elapsed }) => {

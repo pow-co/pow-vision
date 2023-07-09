@@ -18,7 +18,7 @@
         font="https://raw.githubusercontent.com/Tresjs/assets/main/fonts/FiraCodeRegular.json"
         center
         :position="[sphereRadius, sphereRadius, sphereRadius]"
-        :text="`${tag}`"
+        :text="tag ? `${tag}` : `${shortDifficulty}`"
         :size="sphereRadius*1.1"
         :height="0.5"
         :curveSegments="1"

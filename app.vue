@@ -1,5 +1,7 @@
 <template>
   <div>
-    <MyScene />
+    <!-- <MyScene /> -->
+    <NuxtPage />
+
   </div>
 </template>

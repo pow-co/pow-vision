@@ -1,4 +1,3 @@
-import { LinkPreview } from "../types";
 
 
 
@@ -18,7 +17,7 @@ export async function useLinkPreview(
 
 url: string
 
-): Promise<Partial<LinkPreview>> {
+) {
 
 const request = await $fetch(url);
 

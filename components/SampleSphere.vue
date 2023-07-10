@@ -18,7 +18,7 @@
         font="https://raw.githubusercontent.com/Tresjs/assets/main/fonts/FiraCodeRegular.json"
         center
         :position="[sphereRadius, sphereRadius, sphereRadius]"
-        :text="tag ? `${tag}` : `${shortDifficulty}`"
+        :text="getText(props.tag)"
         :size="sphereRadius*1.1"
         :height="0.5"
         :curveSegments="1"
@@ -35,10 +35,12 @@
       <TresMeshNormalMaterial />
     </Sphere>
   </TresMesh>
+
 </template>
 
 <script setup>
   import { useRenderLoop } from '@tresjs/core'
+  const router = useRouter();
 
   //
   // Props
@@ -53,15 +55,41 @@
     difficulty: {
       type: Number,
     },
+    contents: {
+      type: Object
+    }
   })
   const showDifficulty = ref(false)
   const shortDifficulty = computed (() => {
     // Difficulty to 4 decimal places or less, if zereos after decimal, remove them
     return props.difficulty.toFixed(4).replace(/\.?0*$/,'')
   })
+  const getText = (tag) => {
+    if (tag) {
+      return tag
+    } else {
+      if(props?.contents?.content?.map?.type) {
+        return props?.contents?.content?.map?.type
+      } else if(props?.contents?.content?.content_type) {
+        return props?.contents?.content?.content_type
+      }
+      else if(props?.contents?.content?.bmap?.MAP[0]?.type === 'ord') {
+        return 'Ordinal'
+      }
+      else {
+        return 'Unknown'
+      }
+    }
+  }
   const showTagAlert= () => {
+    // Vue Router push to the tag /topics/tag
+    if(props.contents) {
+    window.open(`https://pow.co/${props.contents.content.txid}`, '_blank', 'noopener noreferrer')
+    } else {
+    router.push({ path: `/topics/${props.tag}` })
+    }
     // Open a new window and go to www.pow.co/topic/{tag}
-    window.open(`https://pow.co/topics/${props.tag}`, '_blank', 'noopener noreferrer')
+    // window.open(`https://pow.co/topics/${props.tag}`, '_blank', 'noopener noreferrer')
     }
   //
   // Refs
@@ -76,7 +104,7 @@
   //
   onMounted(async () => {
     await nextTick()
-
+    console.log('props', props)
     onLoop(({ elapsed }) => {
 
     });

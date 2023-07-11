@@ -1,5 +1,8 @@
 <script lang="ts" setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
+import Markdown from 'vue3-markdown-it';
+import Tweet from "vue-tweet";
+
 
 const props = defineProps({
   content: {
@@ -8,6 +11,46 @@ const props = defineProps({
   },
 })
 
+const markdownContent = ref(null)
+const urlContent = ref(null)
+const tweetId = ref(null)
+
+onMounted(async () => {
+
+
+  if(props.content.content.content_type === 'text/markdown') {
+    markdownContent.value = props.content.content.content_text
+  } else if (props?.content?.content.content_type === 'application/json' && props?.content.content.map.type === 'url') {
+
+    const { data } = await useFetch(`https://onchain.sv/api/v1/events/${props?.content.content.txid}`)
+
+    const urlData = data.value
+
+
+    // Check if url is a Tweet
+    if(urlData.events[0].content.url && urlData.events[0].content.url.includes('twitter.com')) {
+      tweetId.value = urlData.events[0].content.url.split('/').pop()
+    }
+
+
+    else if(urlData) {
+    const previewLinkTest = await useFetch('/api/preview', {
+    query: {
+        url: urlData.events[0].content.url,
+      }
+    })
+
+
+  if(previewLinkTest.data) {
+
+    urlContent.value = previewLinkTest.data.value
+
+
+    }
+  }
+}
+
+})
 
 </script>
 
@@ -23,10 +66,15 @@ const props = defineProps({
 
         <div>
           <div class="q-pa-md boostpow-dialog w-full text-center md:w-md">
-            <div class="mb-4 flex items-center">
-              <div class="font-bolder ml-2 text-lg font-medium">
-                Boostpow
-              </div>
+            <div v-if="markdownContent"  class="mb-4 flex items-center">
+              <Markdown :source="markdownContent" />
+            </div>
+            <div v-if="tweetId"  class="mb-4 flex items-center">
+
+              <Tweet :tweet-id="tweetId" />
+            </div>
+            <div v-if="urlContent"  class="mb-4 flex items-center">
+              <LinkPreview :preview="urlContent.preview" />
             </div>
           </div>
         </div>

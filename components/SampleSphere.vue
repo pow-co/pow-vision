@@ -1,46 +1,52 @@
 <template>
-  <TresMesh
-    ref="boxRef"
-    @pointer-enter="onPointerenter"
-    @pointer-leave="onPointerleave"
-  >
-  <BaseText
-  v-if="showDifficulty"
-  @click="showTagAlert"
-  :position="{x: -sphereRadius, y: -sphereRadius, z: 0}"
-  :text="`${shortDifficulty}`"
-  :size="sphereRadius * 0.75"
-  :height="0.5"
-  :curveSegments="1"
-/>
-    <Suspense>
-      <Text3D
-        font="https://raw.githubusercontent.com/Tresjs/assets/main/fonts/FiraCodeRegular.json"
-        center
-        :position="[sphereRadius, sphereRadius, sphereRadius]"
-        :text="getText(props.tag)"
-        :size="sphereRadius*1.1"
-        :height="0.5"
-        :curveSegments="1"
-      >
-        <TresMeshNormalMaterial />
-      </Text3D>
-    </Suspense>
 
-    <Sphere
+    <TresMesh
+      ref="boxRef"
+      @pointer-enter="onPointerenter"
+      @pointer-leave="onPointerleave"
+    >
+    <BaseText
+    v-if="showDifficulty"
     @click="showTagAlert"
-    @pointer-enter="onPointerenter"
-    @pointer-leave="onPointerleave"
-    :args="[sphereRadius, 12, 12]">
-      <TresMeshNormalMaterial />
-    </Sphere>
-  </TresMesh>
+    :position="{x: -sphereRadius, y: -sphereRadius, z: 0}"
+    :text="`${shortDifficulty}`"
+    :size="sphereRadius * 0.75"
+    :height="0.5"
+    :curveSegments="1"
+  />
+      <Suspense>
+        <Text3D
+          font="https://raw.githubusercontent.com/Tresjs/assets/main/fonts/FiraCodeRegular.json"
+          center
+          :position="[sphereRadius, sphereRadius, sphereRadius]"
+          :text="getText(props.tag)"
+          :size="sphereRadius*1.1"
+          :height="0.5"
+          :curveSegments="1"
+        >
+          <TresMeshNormalMaterial />
+        </Text3D>
+      </Suspense>
+
+      <Sphere
+      @click="showTagAlert"
+      @pointer-enter="onPointerenter"
+      @pointer-leave="onPointerleave"
+      :args="[sphereRadius, 12, 12]">
+        <TresMeshNormalMaterial />
+      </Sphere>
+    </TresMesh>
+
 
 </template>
 
 <script setup>
-  import { useRenderLoop } from '@tresjs/core'
   const router = useRouter();
+  import { useRenderLoop, useTres } from '@tresjs/core';
+const { state } = useTres()
+// console.log('sub', state) // THREE.WebGLRenderer
+
+const emit = defineEmits(['showContent'])
 
   //
   // Props
@@ -84,49 +90,17 @@
   const showTagAlert= () => {
     // Vue Router push to the tag /topics/tag
     if(props.contents) {
-    window.open(`https://pow.co/${props.contents.content.txid}`, '_blank', 'noopener noreferrer')
+      emit('showContent', props.contents)
+    // window.open(`https://pow.co/${props.contents.content.txid}`, '_blank', 'noopener noreferrer')
     } else {
     router.push({ path: `/topics/${props.tag}` })
     }
     // Open a new window and go to www.pow.co/topic/{tag}
     // window.open(`https://pow.co/topics/${props.tag}`, '_blank', 'noopener noreferrer')
     }
-  //
-  // Refs
-  //
-  const { $gsap } = useNuxtApp()
-  const { onLoop } = useRenderLoop()
 
   const boxRef = shallowRef('boxRef')
 
-  //
-  // Lifecycle
-  //
-  onMounted(async () => {
-    await nextTick()
-    console.log('props', props)
-    onLoop(({ elapsed }) => {
-
-    });
-  })
-
-  //
-  // Methods
-  //
-  function onBoxClick(event) {
-
-    if ($gsap.isTweening(event.object.scale)) return
-
-    $gsap.to(event.object.scale, {
-      x: 1.5,
-      y: 1.5,
-      z: 1.5,
-      repeat: 1,
-      yoyo: true,
-      duration: 1,
-      ease: 'elastic.inOut(3.5, 1)',
-    })
-  }
 
   function onPointerenter() {
     document.body.style.cursor = 'pointer'
@@ -137,4 +111,5 @@
     document.body.style.cursor = null
     showDifficulty.value = false
   }
+
 </script>

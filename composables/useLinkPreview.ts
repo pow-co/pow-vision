@@ -20,6 +20,7 @@ url: string
 ) {
 
 const request = await $fetch(url);
+// console.log('request', request);
 
 const html = request as string;
 

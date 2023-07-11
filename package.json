@@ -12,12 +12,14 @@
     "@nuxt/devtools": "latest",
     "@nuxtjs/plausible": "^0.2.1",
     "@types/node": "^18",
-    "nuxt": "^3.6.1"
+    "nuxt": "^3.6.2"
   },
   "dependencies": {
     "@tresjs/cientos": "^2.2.0",
     "@tresjs/nuxt": "^1.0.0",
     "@tresjs/post-processing": "^0.3.0",
-    "buffer": "^6.0.3"
+    "buffer": "^6.0.3",
+    "vue-tweet": "^2.0.2",
+    "vue3-markdown-it": "^1.0.10"
   }
 }

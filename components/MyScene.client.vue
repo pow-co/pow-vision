@@ -1,37 +1,63 @@
 <template>
   <div>
     <LoadSpinner v-if="loading" />
-    <!-- <ContentViewer
-    :content="'asf'"
+    <ContentViewer
+    v-if="showContent"
+    @close="showContent = false"
+    :content="boostedContent"
     class="" size="sm" round
      outline
-  /> -->
-    <TresCanvas ref="tresCanvas" v-if="!loading && filteredRankings && filteredRankings.length" v-bind="gl" window-size>
+  />
+  <div class="test">
+    <TresCanvas ref="tresCanvas" v-if=" !loading && filteredRankings && filteredRankings.length" v-bind="gl" window-size>
       <TresPerspectiveCamera :position="[0, 1.7, 30]" :look-at="[0, 0, 0]" />
       <OrbitControls :enabled="config.orbitControlsEnabled" />
       <Stars />
 
-      <SampleSphere v-for="item in filteredRankings" :position="item.position" :ref="item.tag" :key="item.tag" :contents="item?.contents"
+      <SampleSphere @show-content="handleShowContent" v-for="item in filteredRankings" :position="item.position" :ref="item.tag" :key="item.tag" :contents="item?.contents"
         :difficulty="item.difficulty" :sphereRadius="getScaledRadius(item?.difficulty ? item.difficulty : item)" :tag="item.tag" />
 
     </TresCanvas>
+
+  </div>
+
+
 
   </div>
 </template>
 
 <script setup>
 import { OrbitControls, useTweakPane } from '@tresjs/cientos'
-import { reactive, ref, onMounted, nextTick, computed } from 'vue'
-import { useRenderLoop } from '@tresjs/core';
+import { reactive, ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
+import { useRenderLoop,  } from '@tresjs/core';
+
+const emit = defineEmits(['mountedSuccessfully'])
+const boostedContent = ref(null)
+const showContent = ref(false)
+
+const handleShowContent = (content)=> {
+  boostedContent.value = content
+  showContent.value = true
+}
+  //
+  // Props
+  //
+  const props = defineProps({
+    id: {
+      type: String,
+    },
+  })
+
+const isMounted = reactive({ value: false });
+const tresCanvas = ref(null); // Create a ref
 
 const { onLoop } = useRenderLoop()
 const timeFrame = reactive({ timestamp: 'last24hr' });
 const loading = ref('true');
-const refCanvas = ref('refCanvas')
-const maxSpheres = ref(50); // Default maximum number of spheres
+const maxSpheres = ref(5); // Default maximum number of spheres
 const filteredRankings = computed(() => rankings.value.slice(0, maxSpheres.value));
 const totalDifficulty = computed(() => filteredRankings.value.slice(0, maxSpheres.value).reduce((acc, cur) => acc + cur.difficulty, 0));
-
+console.log('totalDifficulty is: ', totalDifficulty)
 const currentTimestamp = computed(() => {
   const now = Math.floor(Date.now() / 1000);
   switch (timeFrame.timestamp) {
@@ -177,7 +203,6 @@ onMounted(async () => {
   await nextTick();
 
   await fetchData(tag);
-
   //   const previewLinkTest = await useFetch('/api/preview', {
   //   query: {
   //       url: 'https://tresjs.org',
@@ -185,6 +210,7 @@ onMounted(async () => {
   //   })
 
   // console.log('previewLinkTest', previewLinkTest)
+
   createDebugPane();
   onLoop(({ elapsed }) => {
     filteredRankings.value.forEach((item, index) => {
@@ -214,10 +240,9 @@ onMounted(async () => {
       item.position = newPosition;
       }
     });
-  });
-  // console.log('filteredRankings',   filteredRankings, rankings  )
-
-})
+  })
+  emit('mountedSuccessfully')
+});
 
 function createDebugPane () {
   pane.addSeparator();
@@ -310,3 +335,12 @@ function getScaledRadius (difficulty) {
   return scaledRadiusLimited;
 }
 </script>
+
+<style>
+.test {
+  width: 200px;
+  height: 100%;
+  background-color: red;
+}
+
+</style>

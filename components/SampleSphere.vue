@@ -11,8 +11,6 @@
     :position="{x: -sphereRadius, y: -sphereRadius, z: 0}"
     :text="`${shortDifficulty}`"
     :size="sphereRadius * 0.75"
-    :height="0.5"
-    :curveSegments="1"
   />
       <Suspense>
         <Text3D

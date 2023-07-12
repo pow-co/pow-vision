@@ -60,7 +60,7 @@ const urlContent = ref(null)
 const tweetId = ref(null)
 
 onMounted(async () => {
-  if (props.content.content.content_type === 'text/markdown') {
+  if (props.content.content.content_type === 'text/markdown' || props.content.content.content_type === 'text/plain') {
     markdownContent.value = props.content.content.content_text
   } else if (props?.content?.content.content_type === 'application/json' && props?.content.content.map.type === 'url') {
     const { data } = await useFetch(`https://onchain.sv/api/v1/events/${props?.content.content.txid}`)

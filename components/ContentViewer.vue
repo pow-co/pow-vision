@@ -32,6 +32,9 @@
               <div v-if="urlContent" class="mb-4 flex items-center">
                 <LinkPreview :preview="urlContent.preview" />
               </div>
+              <div v-if="youtubeUrl" class="player">
+                  <VueYtframe :videoUrl="youtubeUrl" />
+              </div>
             </div>
           </div>
         </div>
@@ -58,6 +61,7 @@ const props = defineProps({
 const markdownContent = ref(null)
 const urlContent = ref(null)
 const tweetId = ref(null)
+const youtubeUrl = ref(null)
 
 onMounted(async () => {
   if (props.content.content.content_type === 'text/markdown' || props.content.content.content_type === 'text/plain') {
@@ -69,6 +73,10 @@ onMounted(async () => {
     // Check if url is a Tweet
     if (urlData.events[0].content.url && urlData.events[0].content.url.includes('twitter.com')) {
       tweetId.value = urlData.events[0].content.url.split('/').pop()
+    }
+    // Check if it is a youtube video
+    else if (urlData && urlData.events[0].content.url && urlData.events[0].content.url.includes('youtube.com')) {
+      youtubeUrl.value = urlData.events[0].content.url
     } else if (urlData) {
       const previewLinkTest = await useFetch('/api/preview', {
         query: {
@@ -160,5 +168,11 @@ img {
   max-width: 100%;
   display: block;
   margin: 0 auto;
+}
+
+
+.player {
+	height: 400px;
+	max-width: 600px;
 }
 </style>

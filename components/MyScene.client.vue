@@ -10,7 +10,7 @@
      outline
   />
   <div class="test">
-    <TresCanvas ref="tresCanvas" v-if=" !loading && filteredRankings && filteredRankings.length" v-bind="gl" window-size>
+    <TresCanvas :id="tresID" :ref="tresID" v-if=" !loading && filteredRankings && filteredRankings.length" v-bind="gl" window-size>
       <TresPerspectiveCamera :position="[0, 1.7, 30]" :look-at="[0, 0, 0]" />
       <OrbitControls :enabled="config.orbitControlsEnabled" />
       <Stars />
@@ -31,6 +31,9 @@
 import { OrbitControls, useTweakPane } from '@tresjs/cientos'
 import { reactive, ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { useRenderLoop,  } from '@tresjs/core';
+
+// Return a random number so that there is a low chance of two canvases having the same ID
+const tresID = Math.random()
 
 const emit = defineEmits(['mountedSuccessfully'])
 const clickedContent = ref(null)
@@ -214,7 +217,7 @@ onMounted(async () => {
 
   // console.log('previewLinkTest', previewLinkTest)
 
-  createDebugPane();
+  await createDebugPane();
   onLoop(({ elapsed }) => {
     filteredRankings.value.forEach((item, index) => {
       if(item  && item.position) {
@@ -248,6 +251,7 @@ onMounted(async () => {
 });
 
 function createDebugPane () {
+  console.log('in createDebugPane')
   pane.addSeparator();
   pane.addInput(gl, 'clearColor', { label: 'Clear Color' });
   pane.addSeparator();

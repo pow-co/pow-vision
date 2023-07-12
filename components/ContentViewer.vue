@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watch, onMounted } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import Markdown from 'vue3-markdown-it';
 import Tweet from "vue-tweet";
 

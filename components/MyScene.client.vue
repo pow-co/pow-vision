@@ -36,6 +36,7 @@ const emit = defineEmits(['mountedSuccessfully'])
 const clickedContent = ref(null)
 const clickedDifficulty = ref(null)
 const showContent = ref(false)
+const currentTag = ref(false)
 
 const handleShowContent = (content)=> {
   clickedContent.value = content.content
@@ -57,7 +58,7 @@ const tresCanvas = ref(null); // Create a ref
 const { onLoop } = useRenderLoop()
 const timeFrame = reactive({ timestamp: 'last24hr' });
 const loading = ref('true');
-const maxSpheres = ref(5); // Default maximum number of spheres
+const maxSpheres = ref(50); // Default maximum number of spheres
 const filteredRankings = computed(() => rankings.value.slice(0, maxSpheres.value));
 const totalDifficulty = computed(() => filteredRankings.value.slice(0, maxSpheres.value).reduce((acc, cur) => acc + cur.difficulty, 0));
 console.log('totalDifficulty is: ', totalDifficulty)
@@ -86,6 +87,7 @@ async function fetchData (tag) {
 
   if (tag) {
     // console.log('tag is : ', tag)
+    currentTag.value = tag
     try {
       passedTag = Buffer.from(tag, 'utf-8').toString('hex')
     } catch (error) {
@@ -93,13 +95,11 @@ async function fetchData (tag) {
     }
   }
 
-  // console.log('passedTag', passedTag)
-
   loading.value = true
   const timestamp = currentTimestamp.value;
   let url
   if (passedTag) {
-    url = `https://pow.co/api/v1/boost/rankings?tag=${passedTag}`
+    url = `https://pow.co/api/v1/boost/rankings?start_date=${currentTimestamp.value}&tag=${passedTag}`
   } else {
     url = timestamp
       ? `https://pow.co/api/v1/boost/rankings/tags?start_date=${currentTimestamp.value}`
@@ -274,7 +274,7 @@ function createDebugPane () {
 
 function setNewTimeStamp (value) {
   timeFrame.timestamp = value;
-  fetchData();
+  fetchData(currentTag.value);
 }
 
 function getPositionBasedOnDifficulty (difficulty) {

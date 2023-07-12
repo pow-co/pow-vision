@@ -4,7 +4,8 @@
     <ContentViewer
     v-if="showContent"
     @close="showContent = false"
-    :content="boostedContent"
+    :difficulty="clickedDifficulty"
+    :content="clickedContent"
     class="" size="sm" round
      outline
   />
@@ -32,11 +33,13 @@ import { reactive, ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { useRenderLoop,  } from '@tresjs/core';
 
 const emit = defineEmits(['mountedSuccessfully'])
-const boostedContent = ref(null)
+const clickedContent = ref(null)
+const clickedDifficulty = ref(null)
 const showContent = ref(false)
 
 const handleShowContent = (content)=> {
-  boostedContent.value = content
+  clickedContent.value = content.content
+  clickedDifficulty.value = content.difficulty
   showContent.value = true
 }
   //

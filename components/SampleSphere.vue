@@ -90,7 +90,7 @@ const emit = defineEmits(['showContent'])
   const showTagAlert= () => {
     // Vue Router push to the tag /topics/tag
     if(props.contents) {
-      emit('showContent', props.contents)
+      emit('showContent', {content: props.contents, difficulty: props.difficulty})
     // window.open(`https://pow.co/${props.contents.content.txid}`, '_blank', 'noopener noreferrer')
     } else {
     router.push({ path: `/topics/${props.tag}` })

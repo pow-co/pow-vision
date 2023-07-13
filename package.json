@@ -12,6 +12,7 @@
     "@nuxt/devtools": "latest",
     "@nuxtjs/plausible": "^0.2.1",
     "@types/node": "^18",
+    "@unocss/nuxt": "^0.53.5",
     "nuxt": "^3.6.2"
   },
   "dependencies": {

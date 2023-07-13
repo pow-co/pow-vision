@@ -1,26 +1,25 @@
 <template>
   <div>
-    <LoadSpinner v-if="loading" />
-    <ContentViewer
-    v-if="showContent"
-    @close="showContent = false"
-    :difficulty="clickedDifficulty"
-    :content="clickedContent"
-    class="" size="sm" round
-     outline
-  />
-  <div class="test">
-    <TresCanvas :id="tresID" :ref="tresID" v-if=" !loading && filteredRankings && filteredRankings.length" v-bind="gl" window-size>
-      <TresPerspectiveCamera :position="[0, 1.7, 50]" :look-at="[0, 0, 0]" />
-      <OrbitControls :enabled="config.orbitControlsEnabled" />
-      <Stars />
+      <LoadSpinner v-if="loading" />
+      <ContentViewer
+      v-if="showContent"
+      @close="showContent = false"
+      :difficulty="clickedDifficulty"
+      :content="clickedContent"
+    />
 
-      <SampleSphere @show-content="handleShowContent" v-for="item in filteredRankings" :position="item.position" :ref="item.tag" :key="item.tag" :contents="item?.contents"
-        :difficulty="item.difficulty" :sphereRadius="getScaledRadius(item?.difficulty ? item.difficulty : item)" :tag="item.tag" />
+  <div class="">
+      <TresCanvas :id="tresID" :ref="tresID" v-if=" !loading && filteredRankings && filteredRankings.length" v-bind="gl" window-size>
+        <TresPerspectiveCamera :position="[0, 1.7, 50]" :look-at="[0, 0, 0]" />
+        <OrbitControls :enabled="config.orbitControlsEnabled" />
+        <Stars />
 
-    </TresCanvas>
+        <SampleSphere @show-content="handleShowContent" v-for="item in filteredRankings" :position="item.position" :ref="item.tag" :key="item.tag" :contents="item?.contents"
+          :difficulty="item.difficulty" :sphereRadius="getScaledRadius(item?.difficulty ? item.difficulty : item)" :tag="item.tag" />
 
-  </div>
+      </TresCanvas>
+
+    </div>
 
 
 
@@ -31,6 +30,8 @@
 import { OrbitControls, useTweakPane } from '@tresjs/cientos'
 import { reactive, ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { useRenderLoop,  } from '@tresjs/core';
+
+const twCont = ref(null)
 
 // Return a random number so that there is a low chance of two canvases having the same ID
 const tresID = Math.random()
@@ -176,7 +177,11 @@ const newRankings = await Promise.all(data.value.rankings.map(async (ranking) =>
   loading.value = false
 }
 
-const { pane } = useTweakPane()
+
+const { pane } = useTweakPane(
+  // {  selector: 'twCont'}
+)
+
 
 const config = reactive({
   orbitControlsEnabled: true,
@@ -201,14 +206,14 @@ const cleanString = (input) => {
 const rankings = ref([])
 
 onMounted(async () => {
-
   const route = useRoute()
   // console.log('route', route)
   const tag = route?.params?.tag
   // console.log('tag is: ', tag)
 
   await nextTick();
-  await createDebugPane();
+    await createDebugPane();
+
 
   await fetchData(tag);
   //   const previewLinkTest = await useFetch('/api/preview', {
@@ -252,7 +257,9 @@ onMounted(async () => {
 });
 
 function createDebugPane () {
-  console.log('in createDebugPane')
+
+
+
   const controls = pane.addFolder({
   title: 'POW Vision Controls',
 });

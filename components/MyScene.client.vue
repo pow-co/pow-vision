@@ -253,14 +253,17 @@ onMounted(async () => {
 
 function createDebugPane () {
   console.log('in createDebugPane')
-  pane.addSeparator();
-  pane.addInput(gl, 'clearColor', { label: 'Clear Color' });
-  pane.addSeparator();
-  pane.addInput(config, 'orbitControlsEnabled', {
+  const controls = pane.addFolder({
+  title: 'POW Vision Controls',
+});
+  controls.addSeparator();
+  controls.addInput(gl, 'clearColor', { label: 'Clear Color' });
+  controls.addSeparator();
+  controls.addInput(config, 'orbitControlsEnabled', {
     label: 'Orbit Controls enabled',
   });
-  pane.addSeparator();
-  const timeFrameSelector = pane.addInput(timeFrame, 'timestamp', {
+  controls.addSeparator();
+  const timeFrameSelector = controls.addInput(timeFrame, 'timestamp', {
     options: {
       'Last 1 hour': 'last1hr',
       'Last 24 hours': 'last24hr',
@@ -270,7 +273,7 @@ function createDebugPane () {
       'All-time': 'alltime',
     },
   });
-  pane.addInput(maxSpheres, 'value', { label: 'Max Spheres', min: 1, max: 100 });
+  controls.addInput(maxSpheres, 'value', { label: 'Max Spheres', min: 1, max: 100 });
 
   timeFrameSelector.on('change', function (ev) {
     setNewTimeStamp(ev.value);

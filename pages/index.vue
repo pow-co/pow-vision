@@ -23,7 +23,7 @@ onMounted(() => {
       // console.log('myScene is not mounted')
       router.go(0)
     }
-  }, 500)
+  }, 1000)
 
 })
 

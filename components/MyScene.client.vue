@@ -11,7 +11,7 @@
   />
   <div class="test">
     <TresCanvas :id="tresID" :ref="tresID" v-if=" !loading && filteredRankings && filteredRankings.length" v-bind="gl" window-size>
-      <TresPerspectiveCamera :position="[0, 1.7, 30]" :look-at="[0, 0, 0]" />
+      <TresPerspectiveCamera :position="[0, 1.7, 50]" :look-at="[0, 0, 0]" />
       <OrbitControls :enabled="config.orbitControlsEnabled" />
       <Stars />
 
@@ -201,12 +201,14 @@ const cleanString = (input) => {
 const rankings = ref([])
 
 onMounted(async () => {
+
   const route = useRoute()
   // console.log('route', route)
   const tag = route?.params?.tag
   // console.log('tag is: ', tag)
 
   await nextTick();
+  await createDebugPane();
 
   await fetchData(tag);
   //   const previewLinkTest = await useFetch('/api/preview', {
@@ -217,7 +219,6 @@ onMounted(async () => {
 
   // console.log('previewLinkTest', previewLinkTest)
 
-  await createDebugPane();
   onLoop(({ elapsed }) => {
     filteredRankings.value.forEach((item, index) => {
       if(item  && item.position) {

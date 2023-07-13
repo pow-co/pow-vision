@@ -7,7 +7,6 @@
     >
     <BaseText
     v-if="showDifficulty"
-    @click="showTagAlert"
     :position="{x: -sphereRadius, y: -sphereRadius, z: 0}"
     :text="`${shortDifficulty}`"
     :size="sphereRadius * 0.75"

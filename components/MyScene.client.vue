@@ -234,8 +234,8 @@ onMounted(async () => {
       let minDifficulty = filteredRankings.value[filteredRankings.value.length - 1].difficulty;
       let maxDifficulty = filteredRankings.value[0].difficulty;
 
-      const minDistanceFromCenter = 5;
-      const maxDistanceFromCenter = 15;
+      const minDistanceFromCenter = 2.5;
+      const maxDistanceFromCenter = 25;
 
       // If the minDifficulty and maxDifficulty are the same, add 10% to the maxDifficulty to avoid a divide by zero error
       if (minDifficulty === maxDifficulty) {
@@ -332,9 +332,9 @@ function getScaledRadius (difficulty) {
 
   let maxDifficulty = filteredRankings.value[0].difficulty;
 
-  const minRadius = 0.2;
-  const maxRadius = 10;
-  const scalingFactor = 0.1; // Adjust this value to control the scaling
+  const minRadius = 0.65;
+  const maxRadius = 75;
+  const scalingFactor = 0.05; // Adjust this value to control the scaling
 
   // If min and max difficulty are the same, add 10% more to max difficulty
   // to avoid division by zero

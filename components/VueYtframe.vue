@@ -2,7 +2,7 @@
 	<div ref="youtube" :id="playerId"></div>
 </template>
 <script setup>
-import {onMounted, ref, watch} from "vue"
+import { onMounted, ref, watch } from "vue"
 
 const player = ref(null)
 const urlValidity = ref(false)
@@ -50,7 +50,7 @@ watch(() => props.videoId, (videoId) => {
 	}, 300)()
 })
 
-function onVideoIdChange(videoId) {
+function onVideoIdChange (videoId) {
 	validate()
 	if (urlValidity.value) {
 		if (player.value) {
@@ -79,7 +79,7 @@ watch(() => props.videoUrl, (videoUrl) => {
 	}, 500)()
 })
 
-function onVideoUrlChange(videoUrl) {
+function onVideoUrlChange (videoUrl) {
 	validate()
 	if (urlValidity.value) {
 		if (player.value) {
@@ -102,7 +102,7 @@ function onVideoUrlChange(videoUrl) {
 	}
 }
 
-function validate() {
+function validate () {
 	const videoId = props.videoId
 	const videoUrl = props.videoUrl
 	if (!videoId && !videoUrl) {
@@ -140,7 +140,7 @@ onMounted(async () => {
 	})
 })
 
-function loadAPI() {
+function loadAPI () {
 	if (document.querySelector("script[src='https://www.youtube.com/iframe_api']")) {
 		return Promise.resolve()
 	}
@@ -151,7 +151,7 @@ function loadAPI() {
 	return Promise.resolve()
 }
 
-function checkIfYTLoaded() {
+function checkIfYTLoaded () {
 	if (window.YT && window.YT.Player) {
 		return Promise.resolve()
 	}
@@ -171,7 +171,7 @@ const emit = defineEmits([
 	"playbackQualityChange", "playbackRateChange", "error", "apiChange"
 ])
 
-function createPlayer() {
+function createPlayer () {
 	const playerElement = document.getElementById(playerId.value)
 	const videoID = props.videoId || getVideoIdFromYoutubeURL(props.videoUrl)
 	// eslint-disable-next-line no-undef
@@ -191,59 +191,59 @@ function createPlayer() {
 	})
 }
 
-function onPlayerReady(event) {
+function onPlayerReady (event) {
 	emit("ready", event.target)
 }
 
-function onPlayerStateChange(event) {
+function onPlayerStateChange (event) {
 	switch (event.data) {
-	case window.YT.PlayerState.PLAYING:
-		emit("playing", event.target)
-		break
-	case window.YT.PlayerState.PAUSED:
-		emit("paused", event.target)
-		break
-	case window.YT.PlayerState.ENDED:
-		emit("ended", event.target)
-		break
+		case window.YT.PlayerState.PLAYING:
+			emit("playing", event.target)
+			break
+		case window.YT.PlayerState.PAUSED:
+			emit("paused", event.target)
+			break
+		case window.YT.PlayerState.ENDED:
+			emit("ended", event.target)
+			break
 	}
 	emit("stateChange", event.target)
 }
 
-function onPlaybackQualityChange(event) {
+function onPlaybackQualityChange (event) {
 	emit("playbackQualityChange", event.target)
 }
 
-function onPlaybackRateChange(event) {
+function onPlaybackRateChange (event) {
 	emit("playbackRateChange", event.target)
 }
 
-function onError(event) {
+function onError (event) {
 	emit("error", event.target)
 }
 
-function onApiChange(event) {
+function onApiChange (event) {
 	emit("apiChange", event.target)
 }
 
 /**
  * @see https://developers.google.com/youtube/iframe_api_reference#playVideo
  */
-function playVideo() {
+function playVideo () {
 	player.value.playVideo()
 }
 
 /**
  * @see https://developers.google.com/youtube/iframe_api_reference#pauseVideo
  */
-function pauseVideo() {
+function pauseVideo () {
 	player.value.pauseVideo()
 }
 
 /**
  * @see https://developers.google.com/youtube/iframe_api_reference#stopVideo
  */
-function stopVideo() {
+function stopVideo () {
 	player.value.stopVideo()
 }
 
@@ -253,21 +253,21 @@ function stopVideo() {
  *
  * @see https://developers.google.com/youtube/iframe_api_reference#seekTo
  */
-function seekTo(seconds, allowSeekAhead) {
+function seekTo (seconds, allowSeekAhead) {
 	player.value.seekTo(seconds, allowSeekAhead)
 }
 
 /**
  * @see https://developers.google.com/youtube/iframe_api_reference#nextVideo
  */
-function nextVideo() {
+function nextVideo () {
 	player.value.nextVideo()
 }
 
 /**
  * @see https://developers.google.com/youtube/iframe_api_reference#previousVideo
  */
-function previousVideo() {
+function previousVideo () {
 	player.value.previousVideo()
 }
 
@@ -275,21 +275,21 @@ function previousVideo() {
  * @param {Number} index
  * @see https://developers.google.com/youtube/iframe_api_reference#playVideoAt
  */
-function playVideoAt(index) {
+function playVideoAt (index) {
 	player.value.playVideoAt(index)
 }
 
 /**
  * @see https://developers.google.com/youtube/iframe_api_reference#mute
  */
-function mute() {
+function mute () {
 	player.value.mute()
 }
 
 /**
  * @see https://developers.google.com/youtube/iframe_api_reference#unMute
  */
-function unMute() {
+function unMute () {
 	player.value.unMute()
 }
 
@@ -297,7 +297,7 @@ function unMute() {
  * @returns {Boolean}
  * @see https://developers.google.com/youtube/iframe_api_reference#isMuted
  */
-function isMuted() {
+function isMuted () {
 	return player.value.isMuted()
 }
 
@@ -306,7 +306,7 @@ function isMuted() {
  *
  * @see https://developers.google.com/youtube/iframe_api_reference#setVolume
  */
-function setVolume(volume) {
+function setVolume (volume) {
 	player.value.setVolume(volume)
 }
 
@@ -314,7 +314,7 @@ function setVolume(volume) {
  * @see https://developers.google.com/youtube/iframe_api_reference#getVolume
  * @returns {Number}
  */
-function getVolume() {
+function getVolume () {
 	return player.value.getVolume()
 }
 
@@ -324,7 +324,7 @@ function getVolume() {
  *
  * @see https://developers.google.com/youtube/iframe_api_reference#setSize
  */
-function setSize(width, height) {
+function setSize (width, height) {
 	player.value.setSize(width, height)
 }
 
@@ -332,7 +332,7 @@ function setSize(width, height) {
  * @param {Boolean} loopPlayLists
  * @see https://developers.google.com/youtube/iframe_api_reference#setLoop
  */
-function setLoop(loopPlayLists) {
+function setLoop (loopPlayLists) {
 	player.value.setLoop(loopPlayLists)
 }
 
@@ -340,7 +340,7 @@ function setLoop(loopPlayLists) {
  * @param {Boolean} shufflePlaylist
  * @see https://developers.google.com/youtube/iframe_api_reference#setShuffle
  */
-function setShuffle(shufflePlaylist) {
+function setShuffle (shufflePlaylist) {
 	player.value.setShuffle(shufflePlaylist)
 }
 
@@ -348,7 +348,7 @@ function setShuffle(shufflePlaylist) {
  * @returns {Number}
  * @see https://developers.google.com/youtube/iframe_api_reference#getDuration
  */
-function getDuration() {
+function getDuration () {
 	return player.value.getDuration()
 }
 
@@ -356,7 +356,7 @@ function getDuration() {
  * @returns {Number}
  * @see https://developers.google.com/youtube/iframe_api_reference#getCurrentTime
  */
-function getCurrentTime() {
+function getCurrentTime () {
 	return player.value.getCurrentTime()
 }
 
@@ -364,7 +364,7 @@ function getCurrentTime() {
  * @returns {String}
  * @see https://developers.google.com/youtube/iframe_api_reference#getVideoEmbedCode
  */
-function getVideoEmbedCode() {
+function getVideoEmbedCode () {
 	return player.value.getVideoEmbedCode()
 }
 
@@ -372,7 +372,7 @@ function getVideoEmbedCode() {
  * @returns {String}
  * @see https://developers.google.com/youtube/iframe_api_reference#getVideoUrl
  */
-function getVideoUrl() {
+function getVideoUrl () {
 	return player.value.getVideoUrl()
 }
 
@@ -380,7 +380,7 @@ function getVideoUrl() {
  * @returns {Number} Floating point number between 0 and 1
  * @see https://developers.google.com/youtube/iframe_api_reference#getVideoLoadedFraction
  */
-function getVideoLoadedFraction() {
+function getVideoLoadedFraction () {
 	return player.value.getVideoLoadedFraction()
 }
 
@@ -388,7 +388,7 @@ function getVideoLoadedFraction() {
  * @returns {Number}
  * @see https://developers.google.com/youtube/iframe_api_reference#getPlayerState
  */
-function getPlayerState() {
+function getPlayerState () {
 	return player.value.getPlayerState()
 }
 
@@ -396,7 +396,7 @@ function getPlayerState() {
  * @returns {Number}
  * @see https://developers.google.com/youtube/iframe_api_reference#getPlaybackRate
  */
-function getPlaybackRate() {
+function getPlaybackRate () {
 	return player.value.getPlaybackRate()
 }
 
@@ -404,7 +404,7 @@ function getPlaybackRate() {
  * @param {Number} suggestedRate
  * @see https://developers.google.com/youtube/iframe_api_reference#setPlaybackRate
  */
-function setPlaybackRate(suggestedRate) {
+function setPlaybackRate (suggestedRate) {
 	player.value.setPlaybackRate(suggestedRate)
 }
 
@@ -412,7 +412,7 @@ function setPlaybackRate(suggestedRate) {
  * @returns {Array}
  * @see https://developers.google.com/youtube/iframe_api_reference#getAvailablePlaybackRates
  */
-function getAvailablePlaybackRates() {
+function getAvailablePlaybackRates () {
 	return player.value.getAvailablePlaybackRates()
 }
 
@@ -422,7 +422,7 @@ function getAvailablePlaybackRates() {
  * @returns {Object}
  * @see https://developers.google.com/youtube/iframe_api_reference#onApiChange
  */
-function getOptions() {
+function getOptions () {
 	return player.value.getOptions()
 }
 
@@ -435,7 +435,7 @@ function getOptions() {
  * @return {*}
  * @see https://developers.google.com/youtube/iframe_api_reference#onApiChange
  */
-function getAnOption(module, option) {
+function getAnOption (module, option) {
 	return player.value.getOption(module, option)
 }
 
@@ -449,7 +449,7 @@ function getAnOption(module, option) {
  * @returns void
  * @see https://developers.google.com/youtube/iframe_api_reference#onApiChange
  */
-function setAnOption(module, option, value) {
+function setAnOption (module, option, value) {
 	player.value.setOption(module, option, value)
 }
 
@@ -459,7 +459,7 @@ function setAnOption(module, option, value) {
  * @returns {Object} {yaw, pitch, roll, fov}
  * @see https://developers.google.com/youtube/iframe_api_reference#getSphericalProperties
  */
-function getSphericalProperties() {
+function getSphericalProperties () {
 	return player.value.getSphericalProperties()
 }
 
@@ -471,7 +471,7 @@ function getSphericalProperties() {
  * @returns void
  * @see https://developers.google.com/youtube/iframe_api_reference#setSphericalProperties
  */
-function setSphericalProperties(props) {
+function setSphericalProperties (props) {
 	player.value.setSphericalProperties(props)
 }
 
@@ -479,7 +479,7 @@ function setSphericalProperties(props) {
  * @returns {Array}
  * @see https://developers.google.com/youtube/iframe_api_reference#getPlaylist
  */
-function getPlaylist() {
+function getPlaylist () {
 	return player.value.getPlaylist()
 }
 
@@ -487,7 +487,7 @@ function getPlaylist() {
  * @return {Number}
  * @see https://developers.google.com/youtube/iframe_api_reference#getPlaylistIndex
  */
-function getPlaylistIndex() {
+function getPlaylistIndex () {
 	return player.value.getPlaylistIndex()
 }
 
@@ -495,14 +495,14 @@ function getPlaylistIndex() {
  * @return {Object}
  * @see https://developers.google.com/youtube/iframe_api_reference#getIframe
  */
-function getIframe() {
+function getIframe () {
 	return player.value.getIframe()
 }
 
 /**
  * @see https://developers.google.com/youtube/iframe_api_reference#destroy
  */
-function destroy() {
+function destroy () {
 	player.value.destroy()
 	player.value = null
 }
@@ -515,8 +515,8 @@ function destroy() {
  * @returns void
  * @see https://developers.google.com/youtube/iframe_api_reference#loadVideoById
  */
-function loadVideoById({videoId, startSeconds, endSeconds} = {}) {
-	player.value.loadVideoById({videoId, startSeconds, endSeconds})
+function loadVideoById ({ videoId, startSeconds, endSeconds } = {}) {
+	player.value.loadVideoById({ videoId, startSeconds, endSeconds })
 }
 
 /**
@@ -527,8 +527,8 @@ function loadVideoById({videoId, startSeconds, endSeconds} = {}) {
  * @returns void
  * @see https://developers.google.com/youtube/iframe_api_reference#cueVideoById
  */
-function cueVideoById({videoId, startSeconds, endSeconds} = {}) {
-	player.value.cueVideoById({videoId, startSeconds, endSeconds})
+function cueVideoById ({ videoId, startSeconds, endSeconds } = {}) {
+	player.value.cueVideoById({ videoId, startSeconds, endSeconds })
 }
 
 /**
@@ -539,8 +539,8 @@ function cueVideoById({videoId, startSeconds, endSeconds} = {}) {
  * @returns void
  * @see https://developers.google.com/youtube/iframe_api_reference#loadVideoByUrl
  */
-function loadVideoByUrl({mediaContentUrl, startSeconds, endSeconds} = {}) {
-	player.value.loadVideoByUrl({mediaContentUrl, startSeconds, endSeconds})
+function loadVideoByUrl ({ mediaContentUrl, startSeconds, endSeconds } = {}) {
+	player.value.loadVideoByUrl({ mediaContentUrl, startSeconds, endSeconds })
 }
 
 /**
@@ -551,8 +551,8 @@ function loadVideoByUrl({mediaContentUrl, startSeconds, endSeconds} = {}) {
  * @returns void
  * @see https://developers.google.com/youtube/iframe_api_reference#cueVideoByUrl
  */
-function cueVideoByUrl({mediaContentUrl, startSeconds, endSeconds} = {}) {
-	player.value.cueVideoByUrl({mediaContentUrl, startSeconds, endSeconds})
+function cueVideoByUrl ({ mediaContentUrl, startSeconds, endSeconds } = {}) {
+	player.value.cueVideoByUrl({ mediaContentUrl, startSeconds, endSeconds })
 }
 
 /**
@@ -564,7 +564,7 @@ function cueVideoByUrl({mediaContentUrl, startSeconds, endSeconds} = {}) {
  * @returns void
  * @see https://developers.google.com/youtube/iframe_api_reference#cuePlaylist
  */
-function cuePlaylist(playlist, index, startSeconds) {
+function cuePlaylist (playlist, index, startSeconds) {
 	player.value.cuePlaylist(playlist, index, startSeconds)
 }
 
@@ -578,7 +578,7 @@ function cuePlaylist(playlist, index, startSeconds) {
  * @returns void
  * @see https://developers.google.com/youtube/iframe_api_reference#loadPlaylist
  */
-function loadPlaylist(playlist, index, startSeconds) {
+function loadPlaylist (playlist, index, startSeconds) {
 	player.value.loadPlaylist(playlist, index, startSeconds)
 }
 
@@ -595,21 +595,22 @@ function loadPlaylist(playlist, index, startSeconds) {
  *
  * @returns {string|null}
  */
-function getVideoIdFromYoutubeURL(url) {
-	const regex = /^https:\/\/(?:(?:www|m)\.)?(?:youtube\.com\/watch\?v=|youtu.be\/|youtube\.com\/embed\/)(?<id>[a-zA-Z0-9_-]+)$/gm
-	regex.lastIndex = 0
-	const match = regex.exec(url)
+function getVideoIdFromYoutubeURL (url) {
+	console.log('url', url)
+	const regex = /^(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=(?<id>[a-zA-Z0-9_-]+)&?/i;
+	regex.lastIndex = 0;
+	const match = regex.exec(url);
 	if (match) {
-		return match.groups.id
+		return match.groups.id;
 	} else {
-		return null
+		return null;
 	}
 }
 
 /**
  * Debounce function
  */
-function debounce(func, wait, immediate) {
+function debounce (func, wait, immediate) {
 	var timeout
 	return function () {
 		var context = this, args = arguments

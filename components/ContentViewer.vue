@@ -23,16 +23,18 @@
           </div>
           <div class="card__content">
             <div class="q-pa-md boostpow-dialog w-full text-center md:w-md">
-              <div v-if="markdownContent" class="mb-4 flex items-center">
+              <div v-if="markdownContent && !isIframeString" class="mb-4 flex items-center">
                 <Markdown :source="markdownContent" />
               </div>
-              <div v-if="tweetId" class="mb-4 flex items-center">
+              <div v-else-if="markdownContent && isIframeString" v-html="markdownContent">
+              </div>
+              <div v-else-if="tweetId" class="mb-4 flex items-center">
                 <Tweet :tweet-id="tweetId" />
               </div>
-              <div v-if="urlContent" class="mb-4 flex items-center">
+              <div v-else-if="urlContent" class="mb-4 flex items-center">
                 <LinkPreview :preview="urlContent.preview" />
               </div>
-              <div v-if="youtubeUrl" class="player">
+              <div v-else-if="youtubeUrl" class="player">
                   <VueYtframe :videoUrl="youtubeUrl" />
               </div>
             </div>
@@ -56,6 +58,12 @@ const props = defineProps({
   difficulty: {
     type: Number,
   },
+})
+
+const isIframeString = computed(() => {
+  const iframeRegex = /^<iframe.*<\/iframe>$/i;
+  if (!markdownContent.value) return false;
+  return iframeRegex.test(markdownContent.value);
 })
 
 const markdownContent = ref(null)

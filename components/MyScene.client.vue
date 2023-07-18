@@ -262,6 +262,7 @@ function createDebugPane () {
 
   const controls = pane.addFolder({
   title: 'POW Vision Controls',
+  expanded: false,   // optional
 });
   controls.addSeparator();
   controls.addInput(gl, 'clearColor', { label: 'Clear Color' });

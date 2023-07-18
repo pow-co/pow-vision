@@ -20,6 +20,7 @@
     "@tresjs/nuxt": "^1.0.0",
     "@tresjs/post-processing": "^0.3.0",
     "buffer": "^6.0.3",
+    "vue-toastification": "2.0.0-rc.5",
     "vue-tweet": "^2.0.2",
     "vue3-markdown-it": "^1.0.10"
   }

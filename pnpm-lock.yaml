@@ -13,6 +13,9 @@ dependencies:
   buffer:
     specifier: ^6.0.3
     version: 6.0.3
+  vue-toastification:
+    specifier: 2.0.0-rc.5
+    version: 2.0.0-rc.5(vue@3.3.4)
   vue-tweet:
     specifier: ^2.0.2
     version: 2.0.2
@@ -7214,6 +7217,14 @@ packages:
       '@vue/devtools-api': 6.5.0
       vue: 3.3.4
     dev: true
+
+  /vue-toastification@2.0.0-rc.5(vue@3.3.4):
+    resolution: {integrity: sha512-q73e5jy6gucEO/U+P48hqX+/qyXDozAGmaGgLFm5tXX4wJBcVsnGp4e/iJqlm9xzHETYOilUuwOUje2Qg1JdwA==}
+    peerDependencies:
+      vue: ^3.0.2
+    dependencies:
+      vue: 3.3.4
+    dev: false
 
   /vue-tweet@2.0.2:
     resolution: {integrity: sha512-a1tmxnOcL8MrBJBiCzoFw8njpaoVWc0pkuaBnEBKs7kdmr5qKjHlSMhjoukPPSLENPjPnRjrJnKEcu0D8+bXNw==}

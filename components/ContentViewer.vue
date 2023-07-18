@@ -49,6 +49,8 @@
 import { computed, ref, onMounted } from 'vue'
 import Markdown from 'vue3-markdown-it';
 import Tweet from "vue-tweet";
+import { useToast } from 'vue-toastification'
+const toast = useToast()
 
 const props = defineProps({
   content: {
@@ -72,6 +74,7 @@ const tweetId = ref(null)
 const youtubeUrl = ref(null)
 
 onMounted(async () => {
+  // toast.success('Hello world!')
   if (props.content.content.content_type === 'text/markdown' || props.content.content.content_type === 'text/plain') {
     markdownContent.value = props.content.content.content_text
   } else if (props?.content?.content.content_type === 'application/json' && props?.content.content.map.type === 'url') {

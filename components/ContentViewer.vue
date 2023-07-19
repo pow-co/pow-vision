@@ -17,7 +17,8 @@
                 TXID: {{ props.content?.content.txid }}
               </a>
             </div>
-            <div class="difficulty">
+            <div class="difficulty flex items-center">
+              <PureBoostButton wallet="relayx" :content="props.content?.content.txid" :onSending="boostSending" :onSuccess="boostSuccess" :onError="boostError"  />
               {{props.difficulty}} <span class="emoji">⛏️</span>
             </div>
           </div>
@@ -53,8 +54,28 @@ import { computed, ref, onMounted } from 'vue'
 import Markdown from 'vue3-markdown-it';
 import Tweet from "vue-tweet";
 import { useToast } from 'vue-toastification'
+import { BoostButton } from 'boostpow-button'
+import { applyPureReactInVue } from 'veaury'
+
+const PureBoostButton = applyPureReactInVue(BoostButton)
 
 const toast = useToast()
+const lastBoostedId = ref<number | null>(null)
+
+const boostSending = () => {
+  lastBoostedId.value = Math.random()
+  toast.info('Attempting to purchase a boost job...', {id: lastBoostedId.value, timeout: 20000})
+}
+
+const boostSuccess = () => {
+  toast.success('Boost success!')
+  toast.dismiss(lastBoostedId.value!)
+}
+
+const boostError = (error: any) => {
+  toast.error(error.message)
+  toast.dismiss(lastBoostedId.value!)
+}
 
 const props = defineProps({
   content: {

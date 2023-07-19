@@ -9,7 +9,7 @@ export default defineNuxtConfig({
     head: {
       script: [
         {
-          src: "https://one.relayx.io/relayone.js",
+          src: "https://one.relayx.io/relayone.js"
         }
       ]
     }

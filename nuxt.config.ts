@@ -4,14 +4,5 @@ export default defineNuxtConfig({
   modules: ["@tresjs/nuxt", '@nuxtjs/plausible', '@unocss/nuxt'],
   plausible: {
     domain: 'pow.vision'
-  },
-  app: {
-    head: {
-      script: [
-        {
-          src: "https://one.relayx.io/relayone.js"
-        }
-      ]
-    }
   }
 })

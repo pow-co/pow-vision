@@ -17,12 +17,14 @@
                 TXID: {{ props.content?.content.txid }}
               </a>
             </div>
-            <div class="difficulty">
+            <div class="difficulty flex items-center">
+              <PureBoostButton :content="props.content?.content.txid" wallet="relayx" :onSending="boostSending"
+                :onSuccess="boostSuccess" :onError="boostError" />
               {{props.difficulty}} <span class="emoji">⛏️</span>
             </div>
           </div>
           <div class="card__content">
-            <div class="q-pa-md boostpow-dialog w-full text-center md:w-md">
+            <div class="boostpow-dialog w-full text-center">
               <div v-if="markdownContent && !isIframeString" class="mb-4 flex items-center">
                 <Markdown :source="markdownContent" />
               </div>
@@ -37,6 +39,9 @@
               <div v-else-if="youtubeUrl" class="player">
                   <VueYtframe :videoUrl="youtubeUrl" />
               </div>
+              <div v-else-if="imageContents" class="flex items-center">
+                <img :src="imageContents" />
+              </div>
             </div>
           </div>
         </div>
@@ -50,7 +55,28 @@ import { computed, ref, onMounted } from 'vue'
 import Markdown from 'vue3-markdown-it';
 import Tweet from "vue-tweet";
 import { useToast } from 'vue-toastification'
+import { applyPureReactInVue } from 'veaury'
+import { BoostButton } from 'boostpow-button'
+
+const PureBoostButton = applyPureReactInVue(BoostButton)
+
 const toast = useToast()
+const lastBoost = ref<number | null>(null)
+
+const boostSending = () => {
+  lastBoost.value = Math.random()
+  toast.info('Attempting to purchase a boost job...', { id: lastBoost.value, timeout: 15000 })
+}
+
+const boostSuccess = (boostObject: any) => {
+  toast.success('Boost success!', boostObject.txid)
+    toast.dismiss(lastBoost.value!);
+}
+
+const boostError = (error: any) => {
+  toast.error('Error sending boost!', error)
+    toast.dismiss(lastBoost.value!);
+  }
 
 const props = defineProps({
   content: {
@@ -72,12 +98,14 @@ const markdownContent = ref(null)
 const urlContent = ref(null)
 const tweetId = ref(null)
 const youtubeUrl = ref(null)
+const imageContents = ref<string | null>(null)
 
 onMounted(async () => {
   // toast.success('Hello world!')
   if (props.content.content.content_type === 'text/markdown' || props.content.content.content_type === 'text/plain') {
     markdownContent.value = props.content.content.content_text
-  } else if (props?.content?.content.content_type === 'application/json' && props?.content.content.map.type === 'url') {
+  }
+  else if (props?.content?.content.content_type === 'application/json' && props?.content.content.map.type === 'url') {
     const { data } = await useFetch(`https://onchain.sv/api/v1/events/${props?.content.content.txid}`)
     const urlData = data.value
 
@@ -88,7 +116,8 @@ onMounted(async () => {
     // Check if it is a youtube video
     else if (urlData && urlData.events[0].content.url && urlData.events[0].content.url.includes('youtube.com')) {
       youtubeUrl.value = urlData.events[0].content.url
-    } else if (urlData) {
+    }
+    else if (urlData) {
       const previewLinkTest = await useFetch('/api/preview', {
         query: {
           url: urlData.events[0].content.url,
@@ -99,6 +128,9 @@ onMounted(async () => {
         urlContent.value = previewLinkTest.data.value
       }
     }
+  }
+  else if ( props.content.content.content_type === 'image/jpeg' ) {
+    imageContents.value = `data:image/jpeg;base64,${props.content.content.content_text}`
   }
 })
 </script>
@@ -169,10 +201,6 @@ onMounted(async () => {
 
 .emoji {
   margin-left: 5px;
-}
-
-.card__content {
-  padding: 20px;
 }
 
 img {

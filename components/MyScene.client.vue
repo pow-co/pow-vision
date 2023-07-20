@@ -1,35 +1,27 @@
 <template>
   <div>
-      <LoadSpinner v-if="loading" />
-      <ContentViewer
-      v-if="showContent"
-      @close="showContent = false"
-      :difficulty="clickedDifficulty"
-      :content="clickedContent"
-    />
+    <LoadSpinner v-if="loading" />
+    <ContentViewer v-if="showContent" @close="showContent = false" :difficulty="clickedDifficulty"
+      :content="clickedContent" />
 
-  <div class="">
-      <TresCanvas :id="tresID" :ref="tresID" v-if=" !loading && filteredRankings && filteredRankings.length" v-bind="gl" window-size>
+    <div class="">
+      <TresCanvas :id="tresID" :ref="tresID" v-if="!loading && filteredRankings && filteredRankings.length" v-bind="gl"
+        window-size>
         <TresPerspectiveCamera :position="[0, 1.7, 100]" :look-at="[0, 0, 0]" />
         <OrbitControls :enabled="config.orbitControlsEnabled" />
         <Stars />
-
-        <SampleSphere @show-content="handleShowContent" v-for="item in filteredRankings" :position="item.position" :ref="item.tag" :key="item.tag" :contents="item?.contents"
-          :difficulty="item.difficulty" :sphereRadius="getScaledRadius(item?.difficulty ? item.difficulty : item)" :tag="item.tag" />
-
+        <SampleSphere @show-content="handleShowContent" v-for="item in filteredRankings" :position="item.position"
+          :ref="item.tag" :key="item.tag" :contents="item?.contents" :difficulty="item.difficulty"
+          :sphereRadius="getScaledRadius(item?.difficulty ? item.difficulty : item)" :tag="item.tag" />
       </TresCanvas>
-
     </div>
-
-
-
   </div>
 </template>
 
 <script setup>
 import { OrbitControls, useTweakPane } from '@tresjs/cientos'
 import { reactive, ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
-import { useRenderLoop,  } from '@tresjs/core';
+import { useRenderLoop, } from '@tresjs/core';
 
 const twCont = ref(null)
 
@@ -42,19 +34,19 @@ const clickedDifficulty = ref(null)
 const showContent = ref(false)
 const currentTag = ref(false)
 
-const handleShowContent = (content)=> {
+const handleShowContent = (content) => {
   clickedContent.value = content.content
   clickedDifficulty.value = content.difficulty
   showContent.value = true
 }
-  //
-  // Props
-  //
-  const props = defineProps({
-    id: {
-      type: String,
-    },
-  })
+//
+// Props
+//
+const props = defineProps({
+  id: {
+    type: String,
+  },
+})
 
 const isMounted = reactive({ value: false });
 const tresCanvas = ref(null); // Create a ref
@@ -149,21 +141,21 @@ async function fetchData (tag) {
       rankings.value = newRankings;
       filteredRankings.length = maxSpheres.value;
     } else {
-const newRankings = await Promise.all(data.value.rankings.map(async (ranking) => {
-  try {
-    const { data } = await useFetch(`https://pow.co/api/v1/content/${ranking.content_txid}`);
-    return {
-      ...ranking,
-      contents: data.value,
-      position: getPositionBasedOnDifficulty(ranking.difficulty),
-      rotation: getRandomRotation(),
-      orbitSpeed: getRandomNumber(0, 0.01) + 0.01,
-      velocity: [0, 0, 0],
-    };
-  } catch (error) {
-    console.log('error is: ', error);
-  }
-}));
+      const newRankings = await Promise.all(data.value.rankings.map(async (ranking) => {
+        try {
+          const { data } = await useFetch(`https://pow.co/api/v1/content/${ranking.content_txid}`);
+          return {
+            ...ranking,
+            contents: data.value,
+            position: getPositionBasedOnDifficulty(ranking.difficulty),
+            rotation: getRandomRotation(),
+            orbitSpeed: getRandomNumber(0, 0.01) + 0.01,
+            velocity: [0, 0, 0],
+          };
+        } catch (error) {
+          console.log('error is: ', error);
+        }
+      }));
 
 
       rankings.value = newRankings;
@@ -212,7 +204,7 @@ onMounted(async () => {
   // console.log('tag is: ', tag)
 
   await nextTick();
-    await createDebugPane();
+  await createDebugPane();
 
 
   await fetchData(tag);
@@ -226,30 +218,30 @@ onMounted(async () => {
 
   onLoop(({ elapsed }) => {
     filteredRankings.value.forEach((item, index) => {
-      if(item  && item.position) {
+      if (item && item.position) {
 
-      const angle = elapsed * item.orbitSpeed;
+        const angle = elapsed * item.orbitSpeed;
 
-      // Calculate min and max difficulties based on filtered rankings
-      let minDifficulty = filteredRankings.value[filteredRankings.value.length - 1].difficulty;
-      let maxDifficulty = filteredRankings.value[0].difficulty;
+        // Calculate min and max difficulties based on filtered rankings
+        let minDifficulty = filteredRankings.value[filteredRankings.value.length - 1].difficulty;
+        let maxDifficulty = filteredRankings.value[0].difficulty;
 
-      const minDistanceFromCenter = 5;
-      const maxDistanceFromCenter = 25;
+        const minDistanceFromCenter = 5;
+        const maxDistanceFromCenter = 25;
 
-      // If the minDifficulty and maxDifficulty are the same, add 10% to the maxDifficulty to avoid a divide by zero error
-      if (minDifficulty === maxDifficulty) {
-        maxDifficulty = maxDifficulty * 1.1;
-      }
+        // If the minDifficulty and maxDifficulty are the same, add 10% to the maxDifficulty to avoid a divide by zero error
+        if (minDifficulty === maxDifficulty) {
+          maxDifficulty = maxDifficulty * 1.1;
+        }
 
-      const distanceFromCenter =
-        ((maxDifficulty - item.difficulty) *
-          (maxDistanceFromCenter - minDistanceFromCenter)) /
-        (maxDifficulty - minDifficulty) +
-        minDistanceFromCenter;
+        const distanceFromCenter =
+          ((maxDifficulty - item.difficulty) *
+            (maxDistanceFromCenter - minDistanceFromCenter)) /
+          (maxDifficulty - minDifficulty) +
+          minDistanceFromCenter;
 
-      const newPosition = getPositionBasedOnAngle(angle, distanceFromCenter, item.rotation);
-      item.position = newPosition;
+        const newPosition = getPositionBasedOnAngle(angle, distanceFromCenter, item.rotation);
+        item.position = newPosition;
       }
     });
   })
@@ -261,9 +253,9 @@ function createDebugPane () {
 
 
   const controls = pane.addFolder({
-  title: 'POW Vision Controls',
-  expanded: false,   // optional
-});
+    title: 'POW Vision Controls',
+    expanded: false,   // optional
+  });
   controls.addSeparator();
   controls.addInput(gl, 'clearColor', { label: 'Clear Color' });
   controls.addSeparator();
@@ -361,5 +353,4 @@ function getScaledRadius (difficulty) {
   height: 100%;
   background-color: red;
 }
-
 </style>

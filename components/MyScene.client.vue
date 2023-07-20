@@ -5,7 +5,7 @@
       :content="clickedContent" />
 
     <div class="">
-      <TresCanvas :id="tresID" :ref="tresID" v-if="!loading && filteredRankings && filteredRankings.length" v-bind="gl"
+      <TresCanvas v-if="!loading && filteredRankings && filteredRankings.length" v-bind="gl"
         window-size>
         <TresPerspectiveCamera :position="[0, 1.7, 100]" :look-at="[0, 0, 0]" />
         <OrbitControls :enabled="config.orbitControlsEnabled" />
@@ -22,11 +22,6 @@
 import { OrbitControls, useTweakPane } from '@tresjs/cientos'
 import { reactive, ref, onMounted, onUnmounted, nextTick, computed } from 'vue'
 import { useRenderLoop, } from '@tresjs/core';
-
-const twCont = ref(null)
-
-// Return a random number so that there is a low chance of two canvases having the same ID
-const tresID = Math.random()
 
 const emit = defineEmits(['mountedSuccessfully'])
 const clickedContent = ref(null)
@@ -47,9 +42,6 @@ const props = defineProps({
     type: String,
   },
 })
-
-const isMounted = reactive({ value: false });
-const tresCanvas = ref(null); // Create a ref
 
 const { onLoop } = useRenderLoop()
 const timeFrame = reactive({ timestamp: 'last24hr' });
@@ -169,11 +161,9 @@ async function fetchData (tag) {
   loading.value = false
 }
 
-
 const { pane } = useTweakPane(
   // {  selector: 'twCont'}
 )
-
 
 const config = reactive({
   orbitControlsEnabled: true,
@@ -182,8 +172,6 @@ const config = reactive({
 const gl = reactive({
   clearColor: '#595959',
 })
-
-
 
 const cleanString = (input) => {
   var output = "";
@@ -205,7 +193,6 @@ onMounted(async () => {
 
   await nextTick();
   await createDebugPane();
-
 
   await fetchData(tag);
   //   const previewLinkTest = await useFetch('/api/preview', {
@@ -249,9 +236,6 @@ onMounted(async () => {
 });
 
 function createDebugPane () {
-
-
-
   const controls = pane.addFolder({
     title: 'POW Vision Controls',
     expanded: false,   // optional
@@ -339,8 +323,6 @@ function getScaledRadius (difficulty) {
     ((difficulty - minDifficulty) * scalingFactor * (maxRadius - minRadius)) /
     (maxDifficulty - minDifficulty) +
     minRadius;
-
-
 
   const scaledRadiusLimited = parseFloat(scaledRadius.toFixed(2));
   return scaledRadiusLimited;
